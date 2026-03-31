@@ -44,8 +44,9 @@ let gameTime = 0;
 
 // === INPUT ===
 const keys = {};
-window.addEventListener('keydown', e => { keys[e.key] = true; e.preventDefault(); });
-window.addEventListener('keyup', e => { keys[e.key] = false; e.preventDefault(); });
+const GAME_KEYS = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'z', 'Z', 'x', 'X', 'Enter'];
+window.addEventListener('keydown', e => { keys[e.key] = true; if (GAME_KEYS.includes(e.key)) e.preventDefault(); });
+window.addEventListener('keyup', e => { keys[e.key] = false; if (GAME_KEYS.includes(e.key)) e.preventDefault(); });
 
 // === CAMERA ===
 const camera = { x: 0 };
@@ -623,15 +624,16 @@ function update(dt) {
 
   camera.x = player.x - 250;
 
-  distance = Math.max(distance, player.x / 50);
-  score = Math.floor(distance);
+  const newDistance = Math.max(distance, player.x / 50);
+  score += Math.floor(newDistance) - Math.floor(distance);
+  distance = newDistance;
 
   if (player.invincible > 0) player.invincible -= dt;
   if (player.meleeCooldown > 0) player.meleeCooldown -= dt;
   if (player.meleeTimer > 0) player.meleeTimer -= dt;
   if (player.shootCooldown > 0) player.shootCooldown -= dt;
 
-  if (keys['z'] && player.meleeCooldown <= 0) {
+  if ((keys['z'] || keys['Z']) && player.meleeCooldown <= 0) {
     player.meleeCooldown = 0.3;
     player.meleeTimer = 0.15;
     const hitbox = meleeHitbox();
@@ -642,7 +644,7 @@ function update(dt) {
     });
   }
 
-  if (keys['x'] && player.shootCooldown <= 0) {
+  if ((keys['x'] || keys['X']) && player.shootCooldown <= 0) {
     player.shootCooldown = 0.5;
     projectiles.push({
       x: player.x + (player.facing === 1 ? player.w : 0),

@@ -1,3 +1,29 @@
+# Jungle Neon — Implementation Plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** Build a single-page HTML neon side-scrolling game where a player kills beetles and dinosaurs.
+
+**Architecture:** Single `index.html` file using Canvas 2D API. Game loop via `requestAnimationFrame` with delta-time. All game objects stored in plain arrays/objects. Procedural terrain generation, parallax scrolling, particle effects via `shadowBlur`.
+
+**Tech Stack:** HTML5 Canvas 2D, vanilla JavaScript, no dependencies.
+
+---
+
+## File Structure
+
+- **Create:** `index.html` — the entire game (single file)
+
+---
+
+### Task 1: Canvas Setup + Game Loop
+
+**Files:**
+- Create: `index.html`
+
+- [ ] **Step 1: Create the base HTML file with canvas and game loop**
+
+```html
 <!DOCTYPE html>
 <html lang="cs">
 <head>
@@ -35,7 +61,7 @@ const COLORS = {
 };
 
 // === GAME STATE ===
-let gameState = 'start';
+let gameState = 'playing'; // 'playing' | 'gameOver'
 let score = 0;
 let distance = 0;
 let highScore = parseInt(localStorage.getItem('jungleNeonHighScore')) || 0;
@@ -44,9 +70,8 @@ let gameTime = 0;
 
 // === INPUT ===
 const keys = {};
-const GAME_KEYS = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'z', 'Z', 'y', 'Y', 'x', 'X', 'Enter'];
-window.addEventListener('keydown', e => { keys[e.key] = true; if (GAME_KEYS.includes(e.key)) e.preventDefault(); });
-window.addEventListener('keyup', e => { keys[e.key] = false; if (GAME_KEYS.includes(e.key)) e.preventDefault(); });
+window.addEventListener('keydown', e => { keys[e.key] = true; e.preventDefault(); });
+window.addEventListener('keyup', e => { keys[e.key] = false; e.preventDefault(); });
 
 // === CAMERA ===
 const camera = { x: 0 };
@@ -55,7 +80,7 @@ const camera = { x: 0 };
 const player = {
   x: 200, y: GROUND_Y, w: 24, h: 40,
   vx: 0, vy: 0,
-  facing: 1,
+  facing: 1, // 1 = right, -1 = left
   onGround: false,
   lives: 3,
   invincible: 0,
@@ -84,18 +109,22 @@ function generateTerrain() {
   while (terrainNextX < camera.x + canvas.width + 400) {
     const rand = Math.random();
     if (rand < 0.15 && terrainNextX > 300) {
+      // Gap
       terrainNextX += 80 + Math.random() * 60;
     } else if (rand < 0.3) {
+      // Raised platform
       const w = 120 + Math.random() * 200;
       terrainSegments.push({ x: terrainNextX, y: GROUND_Y - 40 - Math.random() * 30, w, h: 12 });
       terrainSegments.push({ x: terrainNextX, y: GROUND_Y, w, h: 20 });
       terrainNextX += w;
     } else {
+      // Flat ground
       const w = 150 + Math.random() * 300;
       terrainSegments.push({ x: terrainNextX, y: GROUND_Y, w, h: 20 });
       terrainNextX += w;
     }
   }
+  // Remove segments far behind camera
   terrainSegments = terrainSegments.filter(s => s.x + s.w > camera.x - 200);
 }
 
@@ -120,6 +149,7 @@ const fgPlants = Array.from({ length: 40 }, () => ({
 }));
 
 function drawParallax() {
+  // Layer 1: Stars (10% scroll)
   ctx.save();
   const starOffsetX = camera.x * 0.1;
   stars.forEach(s => {
@@ -133,6 +163,7 @@ function drawParallax() {
   });
   ctx.restore();
 
+  // Layer 2: Tree silhouettes (40% scroll)
   ctx.save();
   ctx.shadowColor = COLORS.terrain;
   ctx.shadowBlur = 6;
@@ -142,10 +173,12 @@ function drawParallax() {
   bgTrees.forEach(t => {
     const tx = ((t.x - treeOffsetX) % (canvas.width * 5) + canvas.width * 5) % (canvas.width * 5);
     if (tx > -50 && tx < canvas.width + 50) {
+      // Trunk
       ctx.beginPath();
       ctx.moveTo(tx, GROUND_Y + 20);
       ctx.lineTo(tx, GROUND_Y + 20 - t.h);
       ctx.stroke();
+      // Canopy
       ctx.beginPath();
       ctx.moveTo(tx - t.w, GROUND_Y + 20 - t.h * 0.5);
       ctx.lineTo(tx, GROUND_Y + 20 - t.h - 20);
@@ -156,6 +189,7 @@ function drawParallax() {
   });
   ctx.restore();
 
+  // Layer 3: Foreground plants (70% scroll)
   ctx.save();
   ctx.shadowColor = COLORS.terrain;
   ctx.shadowBlur = 4;
@@ -175,6 +209,7 @@ function drawParallax() {
         ctx.quadraticCurveTo(px + 10, GROUND_Y + 20 - p.h * 0.6, px + 15, GROUND_Y + 20 - p.h);
         ctx.stroke();
       } else {
+        // Vine hanging from top
         ctx.beginPath();
         ctx.moveTo(px, 0);
         ctx.quadraticCurveTo(px + 8, p.h * 0.5, px - 5, p.h);
@@ -201,15 +236,18 @@ function drawPlayer() {
   ctx.translate(sx + player.w / 2, sy);
   ctx.scale(f, 1);
 
+  // Head
   ctx.beginPath();
   ctx.arc(0, -30, 8, 0, Math.PI * 2);
   ctx.stroke();
 
+  // Body
   ctx.beginPath();
   ctx.moveTo(0, -22);
   ctx.lineTo(0, -4);
   ctx.stroke();
 
+  // Arms
   ctx.beginPath();
   ctx.moveTo(0, -18);
   ctx.lineTo(10, -10);
@@ -219,6 +257,7 @@ function drawPlayer() {
   ctx.lineTo(-8, -12);
   ctx.stroke();
 
+  // Legs
   ctx.beginPath();
   ctx.moveTo(0, -4);
   ctx.lineTo(7, 0);
@@ -230,6 +269,7 @@ function drawPlayer() {
 
   ctx.restore();
 
+  // Melee arc
   if (player.meleeTimer > 0) {
     ctx.save();
     ctx.shadowColor = COLORS.melee;
@@ -260,10 +300,12 @@ function drawBeetle(enemy) {
   ctx.lineWidth = 2;
   ctx.translate(sx, sy);
 
+  // Body (oval)
   ctx.beginPath();
   ctx.ellipse(0, -8, 14, 8, 0, 0, Math.PI * 2);
   ctx.stroke();
 
+  // Horn/antlers (roháč)
   ctx.beginPath();
   ctx.moveTo(f * 10, -12);
   ctx.lineTo(f * 22, -20);
@@ -274,12 +316,15 @@ function drawBeetle(enemy) {
   ctx.lineTo(f * 20, -16);
   ctx.stroke();
 
+  // Legs (6)
   for (let i = -1; i <= 1; i++) {
     const lx = i * 8;
+    // Left legs
     ctx.beginPath();
     ctx.moveTo(lx, -2);
     ctx.lineTo(lx - 6, 4);
     ctx.stroke();
+    // Right legs
     ctx.beginPath();
     ctx.moveTo(lx, -2);
     ctx.lineTo(lx + 6, 4);
@@ -303,6 +348,7 @@ function drawTRex(enemy) {
   ctx.translate(sx, sy);
   ctx.scale(f * -1, 1);
 
+  // Head (large)
   ctx.beginPath();
   ctx.moveTo(20, -55);
   ctx.lineTo(38, -52);
@@ -312,12 +358,14 @@ function drawTRex(enemy) {
   ctx.closePath();
   ctx.stroke();
 
+  // Jaw
   ctx.beginPath();
   ctx.moveTo(38, -45);
   ctx.lineTo(42, -42);
   ctx.lineTo(38, -40);
   ctx.stroke();
 
+  // Teeth
   ctx.lineWidth = 1;
   for (let i = 0; i < 3; i++) {
     const tx = 30 + i * 4;
@@ -328,10 +376,12 @@ function drawTRex(enemy) {
   }
   ctx.lineWidth = 2.5;
 
+  // Eye
   ctx.beginPath();
   ctx.arc(30, -50, 2, 0, Math.PI * 2);
   ctx.stroke();
 
+  // Neck
   ctx.beginPath();
   ctx.moveTo(20, -52);
   ctx.quadraticCurveTo(10, -50, 5, -42);
@@ -341,6 +391,7 @@ function drawTRex(enemy) {
   ctx.quadraticCurveTo(12, -40, 5, -35);
   ctx.stroke();
 
+  // Body
   ctx.beginPath();
   ctx.moveTo(5, -42);
   ctx.quadraticCurveTo(-5, -48, -20, -42);
@@ -350,6 +401,7 @@ function drawTRex(enemy) {
   ctx.quadraticCurveTo(-5, -25, -20, -30);
   ctx.stroke();
 
+  // Tail
   ctx.beginPath();
   ctx.moveTo(-20, -42);
   ctx.quadraticCurveTo(-35, -45, -45, -38);
@@ -359,6 +411,7 @@ function drawTRex(enemy) {
   ctx.quadraticCurveTo(-32, -30, -45, -38);
   ctx.stroke();
 
+  // Small front arms
   ctx.lineWidth = 1.5;
   ctx.beginPath();
   ctx.moveTo(8, -35);
@@ -366,6 +419,7 @@ function drawTRex(enemy) {
   ctx.lineTo(12, -26);
   ctx.stroke();
 
+  // Massive back legs
   ctx.lineWidth = 2.5;
   ctx.beginPath();
   ctx.moveTo(-10, -30);
@@ -407,11 +461,13 @@ function drawProjectiles() {
 
   projectiles.forEach(p => {
     const sx = p.x - camera.x;
+    // Trail
     for (let i = 1; i <= 3; i++) {
       const alpha = (1 - i * 0.3).toFixed(1);
       ctx.fillStyle = `rgba(0, 188, 212, ${alpha})`;
       ctx.fillRect(sx - p.dir * i * 8, p.y - 2, 10, 4);
     }
+    // Main projectile
     ctx.fillStyle = COLORS.projectile;
     ctx.fillRect(sx, p.y - 3, 12, 6);
   });
@@ -420,30 +476,33 @@ function drawProjectiles() {
 
 // === DRAW PARTICLES ===
 function drawParticles() {
-  ctx.save();
-  ctx.shadowBlur = 6;
   particles.forEach(p => {
+    ctx.save();
     ctx.shadowColor = p.color;
+    ctx.shadowBlur = 6;
     ctx.fillStyle = p.color + Math.floor(p.life * 255).toString(16).padStart(2, '0');
     ctx.beginPath();
     ctx.arc(p.x - camera.x, p.y, p.size, 0, Math.PI * 2);
     ctx.fill();
+    ctx.restore();
   });
-  ctx.restore();
 }
 
 // === DRAW HUD ===
 function drawHUD() {
   ctx.save();
+  ctx.shadowBlur = 0;
 
+  // Lives (hearts)
   ctx.shadowColor = '#f44336';
   ctx.shadowBlur = 8;
   ctx.fillStyle = '#f44336';
   ctx.font = '20px sans-serif';
   for (let i = 0; i < player.lives; i++) {
-    ctx.fillText('\u2665', 20 + i * 28, 30);
+    ctx.fillText('♥', 20 + i * 28, 30);
   }
 
+  // Score
   ctx.shadowColor = COLORS.projectile;
   ctx.shadowBlur = 8;
   ctx.fillStyle = COLORS.projectile;
@@ -451,6 +510,7 @@ function drawHUD() {
   ctx.textAlign = 'center';
   ctx.fillText(`${Math.floor(score)}`, canvas.width / 2, 30);
 
+  // Distance
   ctx.shadowColor = COLORS.player;
   ctx.shadowBlur = 8;
   ctx.fillStyle = COLORS.player;
@@ -498,85 +558,9 @@ function drawGameOver() {
   ctx.restore();
 }
 
-// === DRAW START SCREEN ===
-function drawStartScreen() {
-  ctx.save();
-  ctx.fillStyle = COLORS.bg;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.textAlign = 'center';
-
-  // Title
-  ctx.shadowColor = COLORS.player;
-  ctx.shadowBlur = 25;
-  ctx.fillStyle = COLORS.player;
-  ctx.font = 'bold 52px monospace';
-  ctx.fillText('JUNGLE NEON', canvas.width / 2, 120);
-
-  // Subtitle
-  ctx.shadowColor = COLORS.projectile;
-  ctx.shadowBlur = 10;
-  ctx.fillStyle = COLORS.projectile;
-  ctx.font = '18px monospace';
-  ctx.fillText('Survive the neon jungle', canvas.width / 2, 160);
-
-  // Controls header
-  ctx.shadowColor = COLORS.melee;
-  ctx.shadowBlur = 8;
-  ctx.fillStyle = COLORS.melee;
-  ctx.font = 'bold 22px monospace';
-  ctx.fillText('CONTROLS', canvas.width / 2, 220);
-
-  // Control lines
-  ctx.shadowBlur = 6;
-  ctx.font = '16px monospace';
-  const cx = canvas.width / 2;
-  const controls = [
-    { key: '\u2190 \u2192', action: 'Move left / right', color: COLORS.player },
-    { key: '\u2191', action: 'Jump', color: COLORS.player },
-    { key: 'Z / Y', action: 'Melee attack (kills bugs)', color: COLORS.melee },
-    { key: 'X', action: 'Shoot (kills dinosaurs)', color: COLORS.projectile },
-  ];
-
-  controls.forEach((c, i) => {
-    const y = 260 + i * 36;
-    ctx.shadowColor = c.color;
-    ctx.fillStyle = c.color;
-    ctx.textAlign = 'right';
-    ctx.fillText(c.key, cx - 20, y);
-    ctx.textAlign = 'left';
-    ctx.fillStyle = '#aaa';
-    ctx.shadowColor = '#aaa';
-    ctx.shadowBlur = 2;
-    ctx.fillText(c.action, cx + 20, y);
-    ctx.shadowBlur = 6;
-  });
-
-  // Enemies info
-  ctx.textAlign = 'center';
-  ctx.shadowColor = COLORS.bug;
-  ctx.shadowBlur = 6;
-  ctx.fillStyle = COLORS.bug;
-  ctx.font = '14px monospace';
-  ctx.fillText('\u2666 Beetles (red) \u2014 fast, 1 HP, melee them!', cx, 420);
-
-  ctx.shadowColor = COLORS.dino;
-  ctx.fillStyle = COLORS.dino;
-  ctx.fillText('\u2666 T-Rex (orange) \u2014 tough, 3 HP, shoot them!', cx, 445);
-
-  // Start prompt
-  ctx.shadowColor = COLORS.player;
-  ctx.shadowBlur = 12;
-  ctx.fillStyle = COLORS.player;
-  ctx.font = 'bold 20px monospace';
-  const blink = Math.floor(Date.now() / 500) % 2 === 0;
-  if (blink) ctx.fillText('Press ENTER to start', cx, 500);
-
-  ctx.textAlign = 'left';
-  ctx.restore();
-}
-
 // === SPAWN ENEMIES ===
 function spawnEnemies(dt) {
+  // Bug spawn rate increases with distance
   let bugInterval;
   if (distance < 500) bugInterval = 2.0;
   else if (distance < 1500) bugInterval = 1.2;
@@ -585,6 +569,7 @@ function spawnEnemies(dt) {
   bugSpawnTimer -= dt;
   if (bugSpawnTimer <= 0) {
     bugSpawnTimer = bugInterval + Math.random() * bugInterval * 0.5;
+    // In 1500m+ zone, spawn groups
     const count = distance > 1500 && Math.random() < 0.4 ? 3 : 1;
     for (let i = 0; i < count; i++) {
       enemies.push({
@@ -600,6 +585,7 @@ function spawnEnemies(dt) {
     }
   }
 
+  // Dinos start after 30s
   if (gameTime > 30) {
     let dinoInterval;
     if (distance < 500) dinoInterval = 8.0;
@@ -657,11 +643,6 @@ function meleeHitbox() {
 
 // === UPDATE ===
 function update(dt) {
-  if (gameState === 'start') {
-    if (keys['Enter']) { gameState = 'playing'; }
-    return;
-  }
-
   if (gameState === 'gameOver') {
     if (keys['Enter']) resetGame();
     return;
@@ -669,16 +650,18 @@ function update(dt) {
 
   gameTime += dt;
 
+  // Player movement
   player.vx = 0;
   if (keys['ArrowLeft']) { player.vx = -PLAYER_SPEED; player.facing = -1; }
   if (keys['ArrowRight']) { player.vx = PLAYER_SPEED; player.facing = 1; }
   if (keys['ArrowUp'] && player.onGround) { player.vy = JUMP_FORCE; player.onGround = false; }
 
+  // Gravity
   player.vy += GRAVITY * dt;
   player.x += player.vx * dt;
   player.y += player.vy * dt;
-  if (player.x < 0) player.x = 0;
 
+  // Terrain collision
   player.onGround = false;
   for (const seg of terrainSegments) {
     if (player.x + player.w > seg.x && player.x < seg.x + seg.w) {
@@ -692,6 +675,7 @@ function update(dt) {
     }
   }
 
+  // Fall off screen reset
   if (player.y > canvas.height + 50) {
     player.lives--;
     screenShake = 0.3;
@@ -704,20 +688,28 @@ function update(dt) {
     player.invincible = 1.5;
   }
 
+  // Camera follows player
   camera.x = player.x - 250;
 
-  const newDistance = Math.max(distance, player.x / 50);
-  score += Math.floor(newDistance) - Math.floor(distance);
-  distance = newDistance;
+  // Distance & score
+  distance = Math.max(distance, player.x / 50);
+  score = Math.floor(distance);
 
+  // Invincibility timer
   if (player.invincible > 0) player.invincible -= dt;
+
+  // Melee cooldown & timer
   if (player.meleeCooldown > 0) player.meleeCooldown -= dt;
   if (player.meleeTimer > 0) player.meleeTimer -= dt;
+
+  // Shoot cooldown
   if (player.shootCooldown > 0) player.shootCooldown -= dt;
 
-  if ((keys['z'] || keys['Z'] || keys['y'] || keys['Y']) && player.meleeCooldown <= 0) {
+  // Melee attack (Z)
+  if (keys['z'] && player.meleeCooldown <= 0) {
     player.meleeCooldown = 0.3;
     player.meleeTimer = 0.15;
+    // Check melee hits
     const hitbox = meleeHitbox();
     enemies.forEach(e => {
       if (rectsOverlap(hitbox, { x: e.x - e.w / 2, y: e.y, w: e.w, h: e.h })) {
@@ -726,7 +718,8 @@ function update(dt) {
     });
   }
 
-  if ((keys['x'] || keys['X']) && player.shootCooldown <= 0) {
+  // Shoot (X)
+  if (keys['x'] && player.shootCooldown <= 0) {
     player.shootCooldown = 0.5;
     projectiles.push({
       x: player.x + (player.facing === 1 ? player.w : 0),
@@ -736,32 +729,37 @@ function update(dt) {
     });
   }
 
+  // Update projectiles
   projectiles.forEach(p => { p.x += p.dir * p.speed * dt; });
   projectiles = projectiles.filter(p => {
     const sx = p.x - camera.x;
     return sx > -50 && sx < canvas.width + 50;
   });
 
+  // Projectile-enemy collisions
   projectiles = projectiles.filter(p => {
     for (const e of enemies) {
       const ex = e.x - e.w / 2;
       if (p.x > ex && p.x < ex + e.w && p.y > e.y - e.h && p.y < e.y) {
         e.hp -= 2;
-        return false;
+        return false; // Remove projectile
       }
     }
     return true;
   });
 
+  // Spawn enemies
   spawnEnemies(dt);
   generateTerrain();
 
+  // Update enemies
   enemies.forEach(e => {
     e.x -= e.speed * dt;
   });
 
+  // Enemy-player collision
   enemies.forEach(e => {
-    if (player.invincible > 0 || gameState === 'gameOver') return;
+    if (player.invincible > 0) return;
     const playerBox = { x: player.x, y: player.y, w: player.w, h: player.h };
     const enemyBox = { x: e.x - e.w / 2, y: e.y, w: e.w, h: e.h };
     if (rectsOverlap(playerBox, enemyBox)) {
@@ -774,16 +772,19 @@ function update(dt) {
     }
   });
 
+  // Remove dead enemies (spawn particles + add score)
   enemies = enemies.filter(e => {
     if (e.hp <= 0) {
       score += e.points;
       spawnDeathParticles(e.x, e.y - e.h / 2, e.type === 'bug' ? COLORS.bug : COLORS.dino);
       return false;
     }
+    // Remove if off-screen left
     if (e.x < camera.x - 100) return false;
     return true;
   });
 
+  // Update particles
   particles.forEach(p => {
     p.x += p.vx * dt;
     p.y += p.vy * dt;
@@ -792,21 +793,17 @@ function update(dt) {
   });
   particles = particles.filter(p => p.life > 0);
 
+  // Screen shake decay
   if (screenShake > 0) screenShake -= dt;
 }
 
 // === DRAW ===
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  if (gameState === 'start') {
-    drawStartScreen();
-    return;
-  }
-
   ctx.fillStyle = COLORS.bg;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+  // Apply screen shake
   ctx.save();
   if (screenShake > 0) {
     const shakeX = (Math.random() - 0.5) * screenShake * 20;
@@ -817,6 +814,7 @@ function draw() {
   drawParallax();
   drawTerrain();
 
+  // Draw enemies
   enemies.forEach(e => {
     if (e.type === 'bug') drawBeetle(e);
     else drawTRex(e);
@@ -826,7 +824,7 @@ function draw() {
   drawPlayer();
   drawParticles();
 
-  ctx.restore();
+  ctx.restore(); // End screen shake
 
   drawHUD();
 
@@ -870,18 +868,42 @@ function endGame() {
 }
 
 // === GAME LOOP ===
-let lastTime = null;
+let lastTime = 0;
 function gameLoop(timestamp) {
-  if (lastTime === null) { lastTime = timestamp; }
-  const dt = Math.min((timestamp - lastTime) / 1000, 0.05);
+  const dt = Math.min((timestamp - lastTime) / 1000, 0.05); // Cap at 50ms
   lastTime = timestamp;
   update(dt);
   draw();
   requestAnimationFrame(gameLoop);
 }
 
+// Init
 generateTerrain();
 requestAnimationFrame(gameLoop);
 </script>
 </body>
 </html>
+```
+
+- [ ] **Step 2: Verify in browser**
+
+Open `index.html` in a browser. Expected:
+- Black background with neon green terrain
+- Neon green stick figure player
+- Arrow keys move left/right, up jumps
+- Z key shows golden melee arc
+- X key shoots cyan projectiles
+- Red beetles and orange T-Rex enemies spawn from the right
+- Killing enemies shows particle explosions and increases score
+- HUD shows lives (hearts), score (center), distance (right)
+- Losing all lives shows game over screen
+- ENTER restarts the game
+- Parallax background with stars, trees, and plants
+
+- [ ] **Step 3: Commit**
+
+```bash
+git init
+git add index.html
+git commit -m "feat: complete Jungle Neon game — neon side-scroller with beetles and dinosaurs"
+```

@@ -440,6 +440,30 @@ function spawnEnemies(dt) {
     }
   }
 
+  // Skeleton spawn (from 500m)
+  if (distance >= 500) {
+    let skeletonInterval;
+    if (distance < 500) skeletonInterval = 5.0;
+    else if (distance < 1500) skeletonInterval = 3.5;
+    else skeletonInterval = 2.0;
+
+    skeletonSpawnTimer -= dt;
+    if (skeletonSpawnTimer <= 0) {
+      skeletonSpawnTimer = skeletonInterval + Math.random() * skeletonInterval * 0.3;
+      enemies.push({
+        type: 'skeleton',
+        x: camera.x + canvas.width + 60,
+        y: GROUND_Y,
+        w: 28, h: 48,
+        hp: 2,
+        speed: 40,
+        facing: -1,
+        points: 30,
+        shootTimer: 1.5,
+      });
+    }
+  }
+
   if (gameTime > 30) {
     let dinoInterval;
     if (distance < 500) dinoInterval = 8.0;

@@ -91,21 +91,71 @@ function update(dt) {
   });
 
   projectiles = projectiles.filter(p => {
+    if (p.hostile) return true; // hostile arrows don't hit enemies
     for (const e of enemies) {
       const ex = e.x - e.w / 2;
       if (p.x > ex && p.x < ex + e.w && p.y > e.y - e.h && p.y < e.y) {
         e.hp -= 2;
+        if (e.type === 'zombie' && e.hp > 0 && !e.rage) {
+          e.rage = true;
+          e.speed = 220;
+          e.points = 25;
+        }
         return false;
       }
     }
     return true;
   });
 
+  // Player projectile vs hostile arrow collision (both destroyed)
+  const playerShots = projectiles.filter(p => !p.hostile);
+  const arrows = projectiles.filter(p => p.hostile);
+  const destroyedPlayerShots = new Set();
+  const destroyedArrows = new Set();
+  for (let i = 0; i < playerShots.length; i++) {
+    for (let j = 0; j < arrows.length; j++) {
+      const ps = playerShots[i];
+      const ar = arrows[j];
+      if (Math.abs(ps.x - ar.x) < 12 && Math.abs(ps.y - ar.y) < 8) {
+        destroyedPlayerShots.add(ps);
+        destroyedArrows.add(ar);
+      }
+    }
+  }
+  if (destroyedPlayerShots.size > 0 || destroyedArrows.size > 0) {
+    projectiles = projectiles.filter(p => !destroyedPlayerShots.has(p) && !destroyedArrows.has(p));
+  }
+
   spawnEnemies(dt);
   generateTerrain();
 
   enemies.forEach(e => {
-    e.x -= e.speed * dt;
+    if (e.type === 'skeleton') {
+      const distToPlayer = e.x - player.x;
+      if (distToPlayer < 250 && distToPlayer > 0) {
+        // Retreat: move right to keep distance
+        e.x += 80 * dt;
+        e.facing = -1;
+      } else {
+        e.x -= e.speed * dt;
+      }
+
+      // Shoot arrows
+      e.shootTimer -= dt;
+      if (e.shootTimer <= 0) {
+        e.shootTimer = 1.5;
+        const dir = player.x < e.x ? -1 : 1;
+        projectiles.push({
+          x: e.x + dir * 20,
+          y: e.y - 24,
+          dir: dir,
+          speed: 350,
+          hostile: true,
+        });
+      }
+    } else {
+      e.x -= e.speed * dt;
+    }
   });
 
   enemies.forEach(e => {
@@ -121,6 +171,25 @@ function update(dt) {
       }
     }
   });
+
+  // Hostile projectile (arrow) hits player
+  if (player.invincible <= 0 && gameState !== 'gameOver') {
+    projectiles = projectiles.filter(p => {
+      if (!p.hostile) return true;
+      const px = player.x;
+      const py = player.y;
+      if (p.x > px && p.x < px + player.w && p.y > py - player.h && p.y < py) {
+        player.lives--;
+        player.invincible = 1.5;
+        screenShake = 0.3;
+        if (player.lives <= 0) {
+          endGame();
+        }
+        return false;
+      }
+      return true;
+    });
+  }
 
   enemies = enemies.filter(e => {
     if (e.hp <= 0) {

@@ -65,6 +65,11 @@ function update(dt) {
     enemies.forEach(e => {
       if (rectsOverlap(hitbox, { x: e.x - e.w / 2, y: e.y, w: e.w, h: e.h })) {
         e.hp -= 1;
+        if (e.type === 'zombie' && e.hp > 0 && !e.rage) {
+          e.rage = true;
+          e.speed = 220;
+          e.points = 25;
+        }
       }
     });
   }
@@ -120,7 +125,7 @@ function update(dt) {
   enemies = enemies.filter(e => {
     if (e.hp <= 0) {
       score += e.points;
-      spawnDeathParticles(e.x, e.y - e.h / 2, e.type === 'bug' ? COLORS.bug : COLORS.dino);
+      spawnDeathParticles(e.x, e.y - e.h / 2, COLORS[e.type] || COLORS.dino);
       return false;
     }
     if (e.x < camera.x - 100) return false;
@@ -162,6 +167,8 @@ function draw() {
 
   enemies.forEach(e => {
     if (e.type === 'bug') drawBeetle(e);
+    else if (e.type === 'zombie') drawZombie(e);
+    else if (e.type === 'skeleton') drawSkeleton(e);
     else drawTRex(e);
   });
 
@@ -200,6 +207,15 @@ function resetGame() {
   terrainNextX = 0;
   bugSpawnTimer = 2;
   dinoSpawnTimer = 8;
+  zombieSpawnTimer = 3;
+  skeletonSpawnTimer = 5;
+  nextWardenDistance = 2000;
+  wardenPhase = 'none';
+  wardenTimer = 0;
+  wardenEntity = null;
+  noiseLevel = 0;
+  wardenOverlayAlpha = 0;
+  wardenDetected = false;
   screenShake = 0;
   generateTerrain();
 }

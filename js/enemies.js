@@ -413,6 +413,33 @@ function spawnEnemies(dt) {
     }
   }
 
+  // Zombie spawn (from 200m)
+  if (distance >= 200) {
+    let zombieInterval;
+    if (distance < 500) zombieInterval = 3.0;
+    else if (distance < 1500) zombieInterval = 2.0;
+    else zombieInterval = 1.2;
+
+    zombieSpawnTimer -= dt;
+    if (zombieSpawnTimer <= 0) {
+      zombieSpawnTimer = zombieInterval + Math.random() * zombieInterval * 0.4;
+      const count = Math.random() < 0.3 ? 2 : 1;
+      for (let i = 0; i < count; i++) {
+        enemies.push({
+          type: 'zombie',
+          x: camera.x + canvas.width + 60 + i * 50,
+          y: GROUND_Y,
+          w: 30, h: 45,
+          hp: 2,
+          speed: 60,
+          facing: -1,
+          points: 15,
+          rage: false,
+        });
+      }
+    }
+  }
+
   if (gameTime > 30) {
     let dinoInterval;
     if (distance < 500) dinoInterval = 8.0;

@@ -40,6 +40,260 @@ function drawBeetle(enemy) {
   ctx.restore();
 }
 
+// === DRAW ZOMBIE ===
+function drawZombie(enemy) {
+  const sx = enemy.x - camera.x;
+  const sy = enemy.y;
+  const f = enemy.facing || -1;
+  const isRage = enemy.rage;
+  const color = isRage ? COLORS.zombieRage : COLORS.zombie;
+
+  // Blink effect during rage
+  if (isRage && Math.floor(gameTime * 8) % 2 === 0) {
+    return; // flicker
+  }
+
+  ctx.save();
+  ctx.shadowColor = color;
+  ctx.shadowBlur = isRage ? 14 : 8;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+  ctx.translate(sx, sy);
+  ctx.scale(f * -1, 1);
+
+  // Head
+  ctx.beginPath();
+  ctx.arc(0, -38, 7, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Body
+  ctx.beginPath();
+  ctx.moveTo(0, -31);
+  ctx.lineTo(0, -12);
+  ctx.stroke();
+
+  // Arms stretched forward
+  ctx.beginPath();
+  ctx.moveTo(0, -26);
+  ctx.lineTo(14, -26);
+  ctx.lineTo(14, -22);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(0, -22);
+  ctx.lineTo(12, -22);
+  ctx.lineTo(12, -18);
+  ctx.stroke();
+
+  // Legs (shuffling pose)
+  ctx.beginPath();
+  ctx.moveTo(0, -12);
+  ctx.lineTo(5, 0);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(0, -12);
+  ctx.lineTo(-4, 0);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+// === DRAW SKELETON ===
+function drawSkeleton(enemy) {
+  const sx = enemy.x - camera.x;
+  const sy = enemy.y;
+  const f = enemy.facing || -1;
+
+  ctx.save();
+  ctx.shadowColor = COLORS.skeleton;
+  ctx.shadowBlur = 8;
+  ctx.strokeStyle = COLORS.skeleton;
+  ctx.lineWidth = 1.5;
+  ctx.translate(sx, sy);
+  ctx.scale(f * -1, 1);
+
+  // Skull
+  ctx.beginPath();
+  ctx.arc(0, -42, 6, 0, Math.PI * 2);
+  ctx.stroke();
+  // Jaw
+  ctx.beginPath();
+  ctx.moveTo(-4, -37);
+  ctx.lineTo(0, -34);
+  ctx.lineTo(4, -37);
+  ctx.stroke();
+
+  // Spine
+  ctx.beginPath();
+  ctx.moveTo(0, -36);
+  ctx.lineTo(0, -14);
+  ctx.stroke();
+
+  // Ribcage
+  for (let i = 0; i < 3; i++) {
+    const ry = -32 + i * 5;
+    ctx.beginPath();
+    ctx.moveTo(-6, ry);
+    ctx.quadraticCurveTo(0, ry + 3, 6, ry);
+    ctx.stroke();
+  }
+
+  // Bow arm (front arm holding bow)
+  ctx.beginPath();
+  ctx.moveTo(0, -28);
+  ctx.lineTo(12, -24);
+  ctx.stroke();
+
+  // Bow
+  ctx.beginPath();
+  ctx.arc(16, -24, 8, -Math.PI * 0.7, Math.PI * 0.7);
+  ctx.stroke();
+  // Bowstring
+  ctx.beginPath();
+  ctx.moveTo(16 + Math.cos(-Math.PI * 0.7) * 8, -24 + Math.sin(-Math.PI * 0.7) * 8);
+  ctx.lineTo(16 + Math.cos(Math.PI * 0.7) * 8, -24 + Math.sin(Math.PI * 0.7) * 8);
+  ctx.stroke();
+
+  // Back arm
+  ctx.beginPath();
+  ctx.moveTo(0, -26);
+  ctx.lineTo(-8, -20);
+  ctx.stroke();
+
+  // Legs
+  ctx.beginPath();
+  ctx.moveTo(0, -14);
+  ctx.lineTo(5, 0);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(0, -14);
+  ctx.lineTo(-5, 0);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+// === DRAW WARDEN ===
+function drawWarden(entity) {
+  const sx = entity.x - camera.x;
+  const sy = entity.y;
+
+  ctx.save();
+  ctx.shadowColor = COLORS.warden;
+  ctx.shadowBlur = 20;
+  ctx.strokeStyle = COLORS.warden;
+  ctx.lineWidth = 3;
+  ctx.translate(sx, sy);
+
+  // Head (smooth, no eyes)
+  ctx.beginPath();
+  ctx.ellipse(0, -78, 12, 10, 0, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Antennae
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(-6, -86);
+  ctx.quadraticCurveTo(-10, -100, -4, -105);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(6, -86);
+  ctx.quadraticCurveTo(10, -100, 4, -105);
+  ctx.stroke();
+
+  // Antenna tips (small circles)
+  ctx.beginPath();
+  ctx.arc(-4, -105, 3, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(4, -105, 3, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Neck
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(0, -68);
+  ctx.lineTo(0, -60);
+  ctx.stroke();
+
+  // Torso (wide)
+  ctx.beginPath();
+  ctx.moveTo(-20, -60);
+  ctx.lineTo(20, -60);
+  ctx.lineTo(18, -20);
+  ctx.lineTo(-18, -20);
+  ctx.closePath();
+  ctx.stroke();
+
+  // Pulsating soul core
+  const pulse = 0.5 + 0.5 * Math.sin(gameTime * 3);
+  ctx.shadowBlur = 20 + pulse * 15;
+  ctx.strokeStyle = `rgba(0, 206, 209, ${0.4 + pulse * 0.6})`;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(0, -42, 8 + pulse * 2, 0, Math.PI * 2);
+  ctx.stroke();
+  // Inner core
+  ctx.beginPath();
+  ctx.arc(0, -42, 3, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Reset style
+  ctx.strokeStyle = COLORS.warden;
+  ctx.shadowBlur = 20;
+  ctx.lineWidth = 3;
+
+  // Arms (massive)
+  ctx.beginPath();
+  ctx.moveTo(-20, -55);
+  ctx.lineTo(-35, -40);
+  ctx.lineTo(-38, -20);
+  ctx.lineTo(-30, -10);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(20, -55);
+  ctx.lineTo(35, -40);
+  ctx.lineTo(38, -20);
+  ctx.lineTo(30, -10);
+  ctx.stroke();
+
+  // Fists
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.arc(-30, -8, 5, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(30, -8, 5, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Legs (thick, sturdy)
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(-10, -20);
+  ctx.lineTo(-12, 0);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(10, -20);
+  ctx.lineTo(12, 0);
+  ctx.stroke();
+
+  // Noise detection ring (visual feedback)
+  if (wardenPhase === 'stealth' || wardenPhase === 'detected') {
+    let ringColor;
+    if (noiseLevel < 30) ringColor = 'rgba(76, 175, 80, 0.3)';
+    else if (noiseLevel < 60) ringColor = 'rgba(255, 235, 59, 0.4)';
+    else ringColor = 'rgba(244, 67, 54, 0.5)';
+    ctx.strokeStyle = ringColor;
+    ctx.lineWidth = 1.5;
+    ctx.shadowBlur = 10;
+    const ringRadius = 60 + noiseLevel * 0.5;
+    ctx.beginPath();
+    ctx.arc(0, -45, ringRadius, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
 // === DRAW T-REX ===
 function drawTRex(enemy) {
   const sx = enemy.x - camera.x;

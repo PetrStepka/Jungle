@@ -140,3 +140,49 @@ function drawStartScreen() {
   ctx.textAlign = 'left';
   ctx.restore();
 }
+
+// === DRAW WARDEN HUD ===
+function drawWardenHUD() {
+  ctx.save();
+
+  // Noise meter bar at top center
+  const barW = 200;
+  const barH = 8;
+  const barX = (canvas.width - barW) / 2;
+  const barY = 50;
+
+  // Background
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+  ctx.fillRect(barX, barY, barW, barH);
+
+  // Fill based on noise level
+  let fillColor;
+  if (noiseLevel < 30) fillColor = COLORS.player; // green
+  else if (noiseLevel < 60) fillColor = '#FFEB3B'; // yellow
+  else fillColor = '#f44336'; // red
+
+  ctx.shadowColor = fillColor;
+  ctx.shadowBlur = 8;
+  ctx.fillStyle = fillColor;
+  ctx.fillRect(barX, barY, barW * (noiseLevel / 100), barH);
+
+  // Label
+  ctx.shadowBlur = 6;
+  ctx.fillStyle = COLORS.warden;
+  ctx.font = '12px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('NOISE', canvas.width / 2, barY - 5);
+
+  // Warning text during danger
+  if (noiseLevel > 60) {
+    ctx.shadowColor = '#f44336';
+    ctx.shadowBlur = 12;
+    ctx.fillStyle = '#f44336';
+    ctx.font = 'bold 14px monospace';
+    const blink = Math.floor(Date.now() / 300) % 2 === 0;
+    if (blink) ctx.fillText('! STAY STILL !', canvas.width / 2, barY + 28);
+  }
+
+  ctx.textAlign = 'left';
+  ctx.restore();
+}

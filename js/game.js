@@ -1,3 +1,142 @@
+// === WARDEN UPDATE ===
+function updateWarden(dt) {
+  // Player can still move during warden (but it makes noise)
+  player.vx = 0;
+  const moving = keys['ArrowLeft'] || keys['ArrowRight'];
+  if (keys['ArrowLeft']) { player.vx = -PLAYER_SPEED; player.facing = -1; }
+  if (keys['ArrowRight']) { player.vx = PLAYER_SPEED; player.facing = 1; }
+  if (keys['ArrowUp'] && player.onGround) {
+    player.vy = JUMP_FORCE;
+    player.onGround = false;
+    noiseLevel = Math.min(100, noiseLevel + 5);
+  }
+
+  // Physics
+  player.vy += GRAVITY * dt;
+  player.x += player.vx * dt;
+  player.y += player.vy * dt;
+  if (player.x < 0) player.x = 0;
+
+  // Ground collision
+  player.onGround = false;
+  for (const seg of terrainSegments) {
+    if (player.x + player.w > seg.x && player.x < seg.x + seg.w) {
+      if (player.y >= seg.y && player.y - player.h < seg.y + seg.h) {
+        if (player.vy >= 0) {
+          player.y = seg.y;
+          player.vy = 0;
+          player.onGround = true;
+        }
+      }
+    }
+  }
+
+  // Fall-off protection during warden
+  if (player.y > canvas.height + 50) {
+    player.y = GROUND_Y - 100;
+    player.vy = 0;
+  }
+
+  camera.x = player.x - 250;
+  if (player.invincible > 0) player.invincible -= dt;
+
+  // Noise system
+  if (moving) {
+    noiseLevel = Math.min(100, noiseLevel + 3 * dt);
+  } else {
+    noiseLevel = Math.max(0, noiseLevel - 2 * dt);
+  }
+
+  // Phase state machine
+  switch (wardenPhase) {
+    case 'intro':
+      wardenOverlayAlpha = Math.min(0.5, wardenOverlayAlpha + dt * 0.25);
+      screenShake = 0.15;
+      wardenTimer -= dt;
+      wardenEntity.x -= 30 * dt;
+      if (wardenTimer <= 0) {
+        wardenPhase = 'stealth';
+        wardenTimer = 11; // 10-12s, use 11
+      }
+      break;
+
+    case 'stealth':
+      wardenEntity.x -= 30 * dt;
+      wardenTimer -= dt;
+
+      if (noiseLevel > 80 && !wardenDetected) {
+        wardenDetected = true;
+        wardenPhase = 'detected';
+        wardenTimer = 0.3; // pause before attack
+      }
+
+      if (wardenTimer <= 0 || wardenEntity.x < camera.x - 100) {
+        wardenPhase = 'exit';
+        wardenTimer = 1.5;
+      }
+      break;
+
+    case 'detected':
+      wardenTimer -= dt;
+      if (wardenTimer <= 0) {
+        // Sonic wave — damage player
+        screenShake = 0.5;
+        if (player.invincible <= 0) {
+          player.lives -= 2;
+          player.invincible = 2.0;
+          if (player.lives <= 0) {
+            endGame();
+            return;
+          }
+        }
+        // Spawn sonic wave particles
+        for (let i = 0; i < 20; i++) {
+          const angle = (Math.PI * 2 * i) / 20;
+          particles.push({
+            x: wardenEntity.x,
+            y: wardenEntity.y - 42,
+            vx: Math.cos(angle) * 300,
+            vy: Math.sin(angle) * 300,
+            size: 3,
+            life: 0.8,
+            color: COLORS.warden,
+          });
+        }
+        wardenPhase = 'exit';
+        wardenTimer = 2.0;
+      }
+      break;
+
+    case 'exit':
+      wardenEntity.x -= 50 * dt; // walk away faster
+      wardenOverlayAlpha = Math.max(0, wardenOverlayAlpha - dt * 0.5);
+      wardenTimer -= dt;
+      if (wardenTimer <= 0) {
+        gameState = 'playing';
+        wardenPhase = 'none';
+        wardenEntity = null;
+        wardenOverlayAlpha = 0;
+        noiseLevel = 0;
+        if (!wardenDetected) {
+          score += 100; // bonus for surviving undetected
+        }
+        nextWardenDistance = distance + 1500 + Math.random() * 1000;
+      }
+      break;
+  }
+
+  // Update particles during warden too
+  particles.forEach(p => {
+    p.x += p.vx * dt;
+    p.y += p.vy * dt;
+    p.vy += 200 * dt;
+    p.life -= dt * 1.5;
+  });
+  particles = particles.filter(p => p.life > 0);
+
+  if (screenShake > 0) screenShake -= dt;
+}
+
 // === UPDATE ===
 function update(dt) {
   if (gameState === 'start') {
@@ -7,6 +146,11 @@ function update(dt) {
 
   if (gameState === 'gameOver') {
     if (keys['Enter']) resetGame();
+    return;
+  }
+
+  if (gameState === 'warden') {
+    updateWarden(dt);
     return;
   }
 
@@ -52,6 +196,17 @@ function update(dt) {
   const newDistance = Math.max(distance, player.x / 50);
   score += Math.floor(newDistance) - Math.floor(distance);
   distance = newDistance;
+
+  // Warden sequence trigger
+  if (gameState === 'playing' && distance >= nextWardenDistance) {
+    gameState = 'warden';
+    wardenPhase = 'intro';
+    wardenTimer = 2.0;
+    wardenEntity = { x: camera.x + canvas.width + 100, y: GROUND_Y };
+    noiseLevel = 0;
+    wardenDetected = false;
+    wardenOverlayAlpha = 0;
+  }
 
   if (player.invincible > 0) player.invincible -= dt;
   if (player.meleeCooldown > 0) player.meleeCooldown -= dt;
@@ -248,6 +403,30 @@ function draw() {
   ctx.restore();
 
   drawHUD();
+
+  // Warden overlay and entity
+  if (gameState === 'warden' && wardenEntity) {
+    // Dark overlay
+    if (wardenOverlayAlpha > 0) {
+      ctx.fillStyle = `rgba(0, 0, 0, ${wardenOverlayAlpha})`;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    // Redraw terrain/player on top of overlay for visibility
+    ctx.save();
+    if (screenShake > 0) {
+      const shakeX = (Math.random() - 0.5) * screenShake * 20;
+      const shakeY = (Math.random() - 0.5) * screenShake * 20;
+      ctx.translate(shakeX, shakeY);
+    }
+    drawTerrain();
+    drawPlayer();
+    drawWarden(wardenEntity);
+    drawParticles();
+    ctx.restore();
+
+    drawWardenHUD();
+  }
 
   if (gameState === 'gameOver') drawGameOver();
 }

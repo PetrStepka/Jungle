@@ -1,5 +1,7 @@
 // === WARDEN UPDATE ===
 function updateWarden(dt) {
+  gameTime += dt;
+
   // Player can still move during warden (but it makes noise)
   player.vx = 0;
   const moving = keys['ArrowLeft'] || keys['ArrowRight'];

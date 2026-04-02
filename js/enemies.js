@@ -443,8 +443,7 @@ function spawnEnemies(dt) {
   // Skeleton spawn (from 500m)
   if (distance >= 500) {
     let skeletonInterval;
-    if (distance < 500) skeletonInterval = 5.0;
-    else if (distance < 1500) skeletonInterval = 3.5;
+    if (distance < 1500) skeletonInterval = 3.5;
     else skeletonInterval = 2.0;
 
     skeletonSpawnTimer -= dt;

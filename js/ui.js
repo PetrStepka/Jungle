@@ -119,15 +119,22 @@ function drawStartScreen() {
 
   // Enemies info
   ctx.textAlign = 'center';
-  ctx.shadowColor = COLORS.bug;
+  ctx.font = '13px monospace';
   ctx.shadowBlur = 6;
-  ctx.fillStyle = COLORS.bug;
-  ctx.font = '14px monospace';
-  ctx.fillText('\u2666 Beetles (red) \u2014 fast, 1 HP, melee them!', cx, 420);
 
-  ctx.shadowColor = COLORS.dino;
-  ctx.fillStyle = COLORS.dino;
-  ctx.fillText('\u2666 T-Rex (orange) \u2014 tough, 3 HP, shoot them!', cx, 445);
+  const enemyInfo = [
+    { text: 'Beetles (red) \u2014 fast, 1 HP, melee them!', color: COLORS.bug },
+    { text: 'Zombies (green) \u2014 slow but rage when hit!', color: COLORS.zombie },
+    { text: 'Skeletons (white) \u2014 shoot arrows, keep distance!', color: COLORS.skeleton },
+    { text: 'T-Rex (orange) \u2014 tough, 3 HP, shoot them!', color: COLORS.dino },
+    { text: 'Warden (cyan) \u2014 stay still or face the sonic blast!', color: COLORS.warden },
+  ];
+
+  enemyInfo.forEach((info, i) => {
+    ctx.shadowColor = info.color;
+    ctx.fillStyle = info.color;
+    ctx.fillText('\u2666 ' + info.text, cx, 405 + i * 20);
+  });
 
   // Start prompt
   ctx.shadowColor = COLORS.player;

@@ -36,6 +36,17 @@ let terrainNextX = 0;
 let enemies = [];
 let bugSpawnTimer = 0;
 let dinoSpawnTimer = 0;
+let zombieSpawnTimer = 0;
+let skeletonSpawnTimer = 0;
+
+// === WARDEN STATE ===
+let nextWardenDistance = 2000;
+let wardenPhase = 'none'; // 'none' | 'intro' | 'stealth' | 'detected' | 'exit'
+let wardenTimer = 0;
+let wardenEntity = null;
+let noiseLevel = 0;
+let wardenOverlayAlpha = 0;
+let wardenDetected = false;
 
 // === PROJECTILES ===
 let projectiles = [];

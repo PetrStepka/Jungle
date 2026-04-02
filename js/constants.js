@@ -12,4 +12,9 @@ const COLORS = {
   projectile: '#00BCD4',
   melee: '#FFD700',
   terrain: '#4CAF50',
+  zombie: '#7CFC00',
+  zombieRage: '#ADFF2F',
+  skeleton: '#E0E0E0',
+  arrow: '#E0E0E0',
+  warden: '#00CED1',
 };

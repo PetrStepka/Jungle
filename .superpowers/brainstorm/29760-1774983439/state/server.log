@@ -1,0 +1,18 @@
+{"type":"server-started","port":63137,"host":"127.0.0.1","url_host":"localhost","url":"http://localhost:63137","screen_dir":"/Users/petrstepka/Github/Jungle/.superpowers/brainstorm/29760-1774983439/content","state_dir":"/Users/petrstepka/Github/Jungle/.superpowers/brainstorm/29760-1774983439/state"}
+{"type":"screen-added","file":"/Users/petrstepka/Github/Jungle/.superpowers/brainstorm/29760-1774983439/content/perspective.html"}
+{"source":"user-event","type":"click","text":"Side-scrolling (z boku)\n      Pohled z boku, hráč běží doleva/doprava a skáče. Styl jako Mario nebo Contra.","choice":"sidescroll","id":null,"timestamp":1774983515515}
+{"source":"user-event","type":"click","text":"Side-scrolling (z boku)\n      Pohled z boku, hráč běží doleva/doprava a skáče. Styl jako Mario nebo Contra.","choice":"sidescroll","id":null,"timestamp":1774983524748}
+{"source":"user-event","type":"click","text":"Side-scrolling (z boku)\n      Pohled z boku, hráč běží doleva/doprava a skáče. Styl jako Mario nebo Contra.","choice":"sidescroll","id":null,"timestamp":1774983524932}
+{"source":"user-event","type":"click","text":"Side-scrolling (z boku)\n      Pohled z boku, hráč běží doleva/doprava a skáče. Styl jako Mario nebo Contra.","choice":"sidescroll","id":null,"timestamp":1774983525765}
+{"source":"user-event","type":"click","text":"Side-scrolling (z boku)\n      Pohled z boku, hráč běží doleva/doprava a skáče. Styl jako Mario nebo Contra.","choice":"sidescroll","id":null,"timestamp":1774983525923}
+{"source":"user-event","type":"click","text":"Side-scrolling (z boku)\n      Pohled z boku, hráč běží doleva/doprava a skáče. Styl jako Mario nebo Contra.","choice":"sidescroll","id":null,"timestamp":1774983526069}
+{"type":"screen-added","file":"/Users/petrstepka/Github/Jungle/.superpowers/brainstorm/29760-1774983439/content/visual-style.html"}
+{"source":"user-event","type":"click","text":"Neon / Temný\n      Tmavé pozadí se zářícími obrysy a efekty. Styl jako Geometry Wars nebo Neon Abyss. Moderní a akční.","choice":"neon","id":null,"timestamp":1774983651414}
+{"type":"screen-added","file":"/Users/petrstepka/Github/Jungle/.superpowers/brainstorm/29760-1774983439/content/combat.html"}
+{"source":"user-event","type":"click","text":"Oboje (melee + střelba)\n      Přepínání mezi zbraněmi nebo combo. Brouky sekáš, na dinosaury střílíš. Víc hloubky, složitější ovládání.","choice":"both","id":null,"timestamp":1774983702197}
+{"type":"screen-added","file":"/Users/petrstepka/Github/Jungle/.superpowers/brainstorm/29760-1774983439/content/structure.html"}
+{"source":"user-event","type":"click","text":"A\n    \n      Endless / Nekonečná\n      Svět se generuje nekonečně doprava. Nepřátelé jsou stále těžší. Cíl = co nejvyšší skóre. Jednoduchý koncept, vysoká znovuhratelnost.","choice":"endless","id":null,"timestamp":1774983773197}
+{"type":"screen-added","file":"/Users/petrstepka/Github/Jungle/.superpowers/brainstorm/29760-1774983439/content/controls.html"}
+{"source":"user-event","type":"click","text":"A\n    \n      Jednoduché (4 klávesy)\n      Šipky = pohyb doleva/doprava + skok. Z = melee útok, X = střelba. To je vše. Rychle se naučíš, hned hraješ.","choice":"simple","id":null,"timestamp":1774983839496}
+{"type":"screen-added","file":"/Users/petrstepka/Github/Jungle/.superpowers/brainstorm/29760-1774983439/content/waiting.html"}
+{"type":"server-stopped","reason":"idle timeout"}

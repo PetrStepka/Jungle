@@ -1,0 +1,85 @@
+<h2>Jak panáček bojuje?</h2>
+<p class="subtitle">Hlavní bojová mechanika — jak zabíjíš brouky a dinosaury?</p>
+
+<div class="cards">
+  <div class="card" data-choice="melee" onclick="toggleSelect(this)">
+    <div class="card-image" style="height:180px;display:flex;align-items:center;justify-content:center;background:#0a0a0a;position:relative;overflow:hidden;">
+      <!-- Melee combat -->
+      <div style="position:absolute;top:50%;left:50%;width:200px;height:200px;background:radial-gradient(circle,#4CAF5008 0%,transparent 70%);transform:translate(-50%,-50%);"></div>
+      <!-- Ground -->
+      <div style="position:absolute;bottom:30px;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#4CAF50,transparent);box-shadow:0 0 8px #4CAF50;"></div>
+      <!-- Player -->
+      <div style="position:absolute;bottom:32px;left:55px;">
+        <div style="width:16px;height:28px;border:2px solid #4CAF50;border-radius:4px;box-shadow:0 0 8px #4CAF50;"></div>
+      </div>
+      <!-- Sword swing arc -->
+      <div style="position:absolute;bottom:36px;left:73px;width:40px;height:40px;border-right:3px solid #FFD700;border-top:3px solid #FFD700;border-radius:0 50% 0 0;box-shadow:2px -2px 12px #FFD700;transform:rotate(-10deg);"></div>
+      <!-- Enemy getting hit -->
+      <div style="position:absolute;bottom:32px;right:45px;">
+        <div style="width:20px;height:14px;border:2px solid #f44336;border-radius:50%;box-shadow:0 0 8px #f44336;opacity:0.7;"></div>
+        <!-- Hit sparks -->
+        <div style="position:absolute;top:-5px;left:-5px;width:4px;height:4px;background:#FFD700;border-radius:50%;box-shadow:0 0 6px #FFD700;"></div>
+        <div style="position:absolute;top:2px;left:-8px;width:3px;height:3px;background:#FFD700;border-radius:50%;box-shadow:0 0 4px #FFD700;"></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Melee (meč / mačeta)</h3>
+      <p>Sekání zblízka. Musíš se dostat k nepříteli. Rizikovější, ale uspokojivější. Jednoduché ovládání.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="ranged" onclick="toggleSelect(this)">
+    <div class="card-image" style="height:180px;display:flex;align-items:center;justify-content:center;background:#0a0a0a;position:relative;overflow:hidden;">
+      <!-- Ranged combat -->
+      <div style="position:absolute;top:50%;left:50%;width:200px;height:200px;background:radial-gradient(circle,#00BCD408 0%,transparent 70%);transform:translate(-50%,-50%);"></div>
+      <!-- Ground -->
+      <div style="position:absolute;bottom:30px;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#4CAF50,transparent);box-shadow:0 0 8px #4CAF50;"></div>
+      <!-- Player -->
+      <div style="position:absolute;bottom:32px;left:30px;">
+        <div style="width:16px;height:28px;border:2px solid #4CAF50;border-radius:4px;box-shadow:0 0 8px #4CAF50;"></div>
+      </div>
+      <!-- Projectiles -->
+      <div style="position:absolute;bottom:48px;left:60px;width:12px;height:4px;background:#00BCD4;border-radius:2px;box-shadow:0 0 8px #00BCD4,4px 0 12px #00BCD4;"></div>
+      <div style="position:absolute;bottom:48px;left:90px;width:12px;height:4px;background:#00BCD4;border-radius:2px;box-shadow:0 0 8px #00BCD4,4px 0 12px #00BCD4;opacity:0.7;"></div>
+      <div style="position:absolute;bottom:48px;left:115px;width:12px;height:4px;background:#00BCD4;border-radius:2px;box-shadow:0 0 8px #00BCD4,4px 0 12px #00BCD4;opacity:0.4;"></div>
+      <!-- Enemy -->
+      <div style="position:absolute;bottom:34px;right:30px;">
+        <div style="width:24px;height:18px;border:2px solid #f44336;border-radius:4px;box-shadow:0 0 8px #f44336;"></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Ranged (střelba)</h3>
+      <p>Střílíš projektily na dálku. Bezpečnější, ale nepřátelé se přibližují. Klasický run-and-gun.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="both" onclick="toggleSelect(this)">
+    <div class="card-image" style="height:180px;display:flex;align-items:center;justify-content:center;background:#0a0a0a;position:relative;overflow:hidden;">
+      <!-- Combined combat -->
+      <div style="position:absolute;top:50%;left:50%;width:200px;height:200px;background:radial-gradient(circle,#9C27B008 0%,transparent 70%);transform:translate(-50%,-50%);"></div>
+      <!-- Ground -->
+      <div style="position:absolute;bottom:30px;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#4CAF50,transparent);box-shadow:0 0 8px #4CAF50;"></div>
+      <!-- Player -->
+      <div style="position:absolute;bottom:32px;left:50%;transform:translateX(-50%);">
+        <div style="width:16px;height:28px;border:2px solid #4CAF50;border-radius:4px;box-shadow:0 0 8px #4CAF50;"></div>
+      </div>
+      <!-- Sword left -->
+      <div style="position:absolute;bottom:40px;left:35px;width:25px;height:25px;border-left:3px solid #FFD700;border-bottom:3px solid #FFD700;border-radius:0 0 0 50%;box-shadow:-2px 2px 10px #FFD700;transform:rotate(10deg);"></div>
+      <!-- Projectile right -->
+      <div style="position:absolute;bottom:48px;right:40px;width:12px;height:4px;background:#00BCD4;border-radius:2px;box-shadow:0 0 8px #00BCD4,4px 0 12px #00BCD4;"></div>
+      <div style="position:absolute;bottom:48px;right:65px;width:12px;height:4px;background:#00BCD4;border-radius:2px;box-shadow:0 0 8px #00BCD4;opacity:0.5;"></div>
+      <!-- Enemy left -->
+      <div style="position:absolute;bottom:32px;left:15px;">
+        <div style="width:16px;height:12px;border:2px solid #f44336;border-radius:50%;box-shadow:0 0 6px #f44336;"></div>
+      </div>
+      <!-- Enemy right -->
+      <div style="position:absolute;bottom:34px;right:15px;">
+        <div style="width:22px;height:16px;border:2px solid #ff5722;border-radius:4px;box-shadow:0 0 6px #ff5722;"></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Oboje (melee + střelba)</h3>
+      <p>Přepínání mezi zbraněmi nebo combo. Brouky sekáš, na dinosaury střílíš. Víc hloubky, složitější ovládání.</p>
+    </div>
+  </div>
+</div>

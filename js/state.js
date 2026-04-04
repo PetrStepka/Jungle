@@ -26,6 +26,7 @@ const player = {
   meleeCooldown: 0,
   meleeTimer: 0,
   shootCooldown: 0,
+  rocketCooldown: 0,
 };
 
 // === TERRAIN ===
@@ -47,6 +48,10 @@ let wardenEntity = null;
 let noiseLevel = 0;
 let wardenOverlayAlpha = 0;
 let wardenDetected = false;
+
+// === HEALTH PICKUPS ===
+let healthPickups = [];
+let healthSpawnTimer = 0;
 
 // === CHEATS ===
 let godMode = false;

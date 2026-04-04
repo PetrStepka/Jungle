@@ -5,7 +5,26 @@ function drawProjectiles() {
   projectiles.forEach(p => {
     const sx = p.x - camera.x;
 
-    if (p.hostile) {
+    if (p.rocket) {
+      // Rocket — orange, big, with fire trail
+      ctx.shadowColor = COLORS.rocket;
+      ctx.shadowBlur = 15;
+      ctx.fillStyle = COLORS.rocket;
+      ctx.fillRect(sx, p.y - 4, p.dir * 18, 8);
+      // Nose cone
+      ctx.beginPath();
+      ctx.moveTo(sx + p.dir * 18, p.y - 5);
+      ctx.lineTo(sx + p.dir * 26, p.y);
+      ctx.lineTo(sx + p.dir * 18, p.y + 5);
+      ctx.fill();
+      // Fire trail
+      for (let i = 1; i <= 4; i++) {
+        const alpha = (1 - i * 0.2).toFixed(1);
+        const trailW = 8 + i * 3;
+        ctx.fillStyle = `rgba(255, ${50 + i * 40}, 0, ${alpha})`;
+        ctx.fillRect(sx - p.dir * i * 10, p.y - trailW / 2, 10, trailW);
+      }
+    } else if (p.hostile) {
       // Arrow (hostile) — white thin line with small trail
       ctx.shadowColor = COLORS.arrow;
       ctx.shadowBlur = 6;

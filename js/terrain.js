@@ -1,15 +1,19 @@
 // === TERRAIN GENERATION ===
+let lastWasGap = false;
 function generateTerrain() {
   while (terrainNextX < camera.x + canvas.width + 400) {
     const rand = Math.random();
-    if (rand < 0.15 && terrainNextX > 300) {
-      terrainNextX += 80 + Math.random() * 60;
+    if (rand < 0.15 && terrainNextX > 300 && !lastWasGap) {
+      terrainNextX += 60 + Math.random() * 40;
+      lastWasGap = true;
     } else if (rand < 0.3) {
+      lastWasGap = false;
       const w = 120 + Math.random() * 200;
       terrainSegments.push({ x: terrainNextX, y: GROUND_Y - 40 - Math.random() * 30, w, h: 12 });
       terrainSegments.push({ x: terrainNextX, y: GROUND_Y, w, h: 20 });
       terrainNextX += w;
     } else {
+      lastWasGap = false;
       const w = 150 + Math.random() * 300;
       terrainSegments.push({ x: terrainNextX, y: GROUND_Y, w, h: 20 });
       terrainNextX += w;

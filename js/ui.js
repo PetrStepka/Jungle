@@ -24,6 +24,20 @@ function drawHUD() {
   ctx.font = '16px monospace';
   ctx.fillText(`${Math.floor(distance)}m`, canvas.width - 20, 30);
 
+  // Rocket cooldown indicator
+  ctx.textAlign = 'left';
+  ctx.font = '14px monospace';
+  if (player.rocketCooldown <= 0) {
+    ctx.shadowColor = COLORS.rocket;
+    ctx.shadowBlur = 10;
+    ctx.fillStyle = COLORS.rocket;
+    ctx.fillText('\u25C6 ROCKET READY', 20, 55);
+  } else {
+    ctx.shadowBlur = 4;
+    ctx.fillStyle = '#555';
+    ctx.fillText(`\u25C6 ROCKET ${Math.ceil(player.rocketCooldown)}s`, 20, 55);
+  }
+
   if (godMode) {
     ctx.shadowColor = COLORS.melee;
     ctx.shadowBlur = 12;
@@ -110,10 +124,11 @@ function drawStartScreen() {
     { key: '\u2191', action: 'Jump', color: COLORS.player },
     { key: 'Z / Y', action: 'Melee attack (kills bugs)', color: COLORS.melee },
     { key: 'X', action: 'Shoot (kills dinosaurs)', color: COLORS.projectile },
+    { key: 'C', action: 'Rocket (piercing, 10s cooldown)', color: COLORS.rocket },
   ];
 
   controls.forEach((c, i) => {
-    const y = 260 + i * 36;
+    const y = 250 + i * 30;
     ctx.shadowColor = c.color;
     ctx.fillStyle = c.color;
     ctx.textAlign = 'right';
@@ -142,7 +157,7 @@ function drawStartScreen() {
   enemyInfo.forEach((info, i) => {
     ctx.shadowColor = info.color;
     ctx.fillStyle = info.color;
-    ctx.fillText('\u2666 ' + info.text, cx, 405 + i * 20);
+    ctx.fillText('\u2666 ' + info.text, cx, 415 + i * 18);
   });
 
   // Start prompt

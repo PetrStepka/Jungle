@@ -216,6 +216,7 @@ function update(dt) {
   if (player.meleeCooldown > 0) player.meleeCooldown -= dt;
   if (player.meleeTimer > 0) player.meleeTimer -= dt;
   if (player.shootCooldown > 0) player.shootCooldown -= dt;
+  if (player.rocketCooldown > 0) player.rocketCooldown -= dt;
 
   if ((keys['z'] || keys['Z'] || keys['y'] || keys['Y']) && player.meleeCooldown <= 0) {
     player.meleeCooldown = 0.3;
@@ -243,6 +244,19 @@ function update(dt) {
     });
   }
 
+  // Rocket (C key) — piercing, 10s cooldown
+  if ((keys['c'] || keys['C']) && player.rocketCooldown <= 0) {
+    player.rocketCooldown = 10;
+    projectiles.push({
+      x: player.x + (player.facing === 1 ? player.w : 0),
+      y: player.y - 18,
+      dir: player.facing,
+      speed: 400,
+      rocket: true,
+    });
+    screenShake = 0.15;
+  }
+
   projectiles.forEach(p => { p.x += p.dir * p.speed * dt; });
   projectiles = projectiles.filter(p => {
     const sx = p.x - camera.x;
@@ -251,14 +265,21 @@ function update(dt) {
 
   projectiles = projectiles.filter(p => {
     if (p.hostile) return true; // hostile arrows don't hit enemies
+    let hitSomething = false;
     for (const e of enemies) {
       const ex = e.x - e.w / 2;
       if (p.x > ex && p.x < ex + e.w && p.y > e.y - e.h && p.y < e.y) {
-        e.hp -= 2;
+        const dmg = p.rocket ? 999 : 2;
+        e.hp -= dmg;
         if (e.type === 'zombie' && e.hp > 0 && !e.rage) {
           e.rage = true;
           e.speed = 220;
           e.points = 25;
+        }
+        if (p.rocket) {
+          hitSomething = true;
+          spawnDeathParticles(e.x, e.y - e.h / 2, COLORS.rocket);
+          continue; // rocket pierces through
         }
         return false;
       }
@@ -287,6 +308,36 @@ function update(dt) {
 
   spawnEnemies(dt);
   generateTerrain();
+
+  // Health pickup spawning
+  healthSpawnTimer -= dt;
+  if (healthSpawnTimer <= 0) {
+    healthSpawnTimer = 12 + Math.random() * 8; // every 12-20 seconds
+    // Place on a ground segment ahead of camera
+    const ahead = terrainSegments.filter(s => s.y === GROUND_Y && s.x > camera.x + canvas.width * 0.5 && s.x < camera.x + canvas.width + 200);
+    if (ahead.length > 0) {
+      const seg = ahead[Math.floor(Math.random() * ahead.length)];
+      healthPickups.push({
+        x: seg.x + Math.random() * (seg.w - 20) + 10,
+        y: GROUND_Y - 20,
+      });
+    }
+  }
+
+  // Health pickup collection
+  healthPickups = healthPickups.filter(h => {
+    if (h.x < camera.x - 100) return false;
+    const dx = Math.abs((player.x + player.w / 2) - h.x);
+    const dy = Math.abs((player.y - player.h / 2) - h.y);
+    if (dx < 20 && dy < 25) {
+      if (player.lives < 5) {
+        player.lives++;
+        spawnDeathParticles(h.x, h.y, COLORS.health);
+      }
+      return false;
+    }
+    return true;
+  });
 
   enemies.forEach(e => {
     if (e.type === 'skeleton') {
@@ -400,6 +451,19 @@ function draw() {
     else drawTRex(e);
   });
 
+  // Draw health pickups
+  ctx.save();
+  ctx.shadowColor = COLORS.health;
+  ctx.shadowBlur = 10;
+  ctx.fillStyle = COLORS.health;
+  ctx.font = '18px sans-serif';
+  healthPickups.forEach(h => {
+    const hx = h.x - camera.x;
+    const bobY = h.y + Math.sin(gameTime * 3) * 3;
+    ctx.fillText('\u2665', hx - 6, bobY);
+  });
+  ctx.restore();
+
   drawProjectiles();
   drawPlayer();
   drawParticles();
@@ -450,6 +514,7 @@ function resetGame() {
   player.meleeCooldown = 0;
   player.meleeTimer = 0;
   player.shootCooldown = 0;
+  player.rocketCooldown = 0;
   player.facing = 1;
   camera.x = 0;
   enemies = [];
@@ -457,6 +522,8 @@ function resetGame() {
   particles = [];
   terrainSegments = [];
   terrainNextX = 0;
+  healthPickups = [];
+  healthSpawnTimer = 15;
   bugSpawnTimer = 2;
   dinoSpawnTimer = 8;
   zombieSpawnTimer = 3;

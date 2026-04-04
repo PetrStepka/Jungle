@@ -17,4 +17,6 @@ const COLORS = {
   skeleton: '#E0E0E0',
   arrow: '#E0E0E0',
   warden: '#00CED1',
+  rocket: '#FF6600',
+  health: '#FF69B4',
 };

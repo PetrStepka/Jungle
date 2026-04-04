@@ -24,6 +24,39 @@ function drawHUD() {
   ctx.font = '16px monospace';
   ctx.fillText(`${Math.floor(distance)}m`, canvas.width - 20, 30);
 
+  // Hunger bar (right side, below distance)
+  const hungerBarW = 80;
+  const hungerBarH = 6;
+  const hungerBarX = canvas.width - 20 - hungerBarW;
+  const hungerBarY = 40;
+
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+  ctx.fillRect(hungerBarX, hungerBarY, hungerBarW, hungerBarH);
+
+  let hungerColor;
+  if (hunger > 50) hungerColor = COLORS.hungerBar;
+  else if (hunger > 20) hungerColor = '#FF5722';
+  else hungerColor = '#f44336';
+
+  ctx.shadowColor = hungerColor;
+  ctx.shadowBlur = hunger <= 20 ? 12 : 6;
+  ctx.fillStyle = hungerColor;
+  ctx.fillRect(hungerBarX, hungerBarY, hungerBarW * (hunger / 100), hungerBarH);
+
+  ctx.font = '10px monospace';
+  ctx.textAlign = 'right';
+  ctx.fillStyle = hungerColor;
+  ctx.fillText('HUNGER', canvas.width - 20, hungerBarY + 16);
+
+  if (hunger <= 0) {
+    ctx.fillStyle = '#f44336';
+    ctx.shadowColor = '#f44336';
+    ctx.shadowBlur = 12;
+    ctx.font = 'bold 12px monospace';
+    const blink = Math.floor(Date.now() / 300) % 2 === 0;
+    if (blink) ctx.fillText('STARVING!', canvas.width - 20, hungerBarY + 30);
+  }
+
   // Rocket cooldown indicator
   ctx.textAlign = 'left';
   ctx.font = '14px monospace';

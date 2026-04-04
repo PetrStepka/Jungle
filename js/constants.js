@@ -19,4 +19,6 @@ const COLORS = {
   warden: '#00CED1',
   rocket: '#FF6600',
   health: '#FF69B4',
+  food: '#FFA726',
+  hungerBar: '#FF9800',
 };

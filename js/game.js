@@ -339,6 +339,58 @@ function update(dt) {
     return true;
   });
 
+  // Hunger depletion
+  hunger = Math.max(0, hunger - 1.5 * dt); // drains ~1.5/s, lasts ~67s from full
+
+  // Starving — lose 1 life every 5 seconds
+  if (hunger <= 0 && !godMode) {
+    hungerDamageTimer -= dt;
+    if (hungerDamageTimer <= 0) {
+      hungerDamageTimer = 5;
+      player.lives--;
+      screenShake = 0.2;
+      player.invincible = 0.5;
+      if (player.lives <= 0) {
+        endGame();
+      }
+    }
+  } else {
+    hungerDamageTimer = 0;
+  }
+
+  // Food spawning
+  foodSpawnTimer -= dt;
+  if (foodSpawnTimer <= 0) {
+    foodSpawnTimer = 6 + Math.random() * 5; // every 6-11 seconds
+    const ahead = terrainSegments.filter(s => s.y === GROUND_Y && s.x > camera.x + canvas.width * 0.3 && s.x < camera.x + canvas.width + 300);
+    if (ahead.length > 0) {
+      const seg = ahead[Math.floor(Math.random() * ahead.length)];
+      const types = ['apple', 'banana', 'meat'];
+      const type = types[Math.floor(Math.random() * types.length)];
+      const fill = type === 'meat' ? 35 : type === 'banana' ? 25 : 20;
+      foodPickups.push({
+        x: seg.x + Math.random() * (seg.w - 20) + 10,
+        y: GROUND_Y - 18,
+        type: type,
+        fill: fill,
+      });
+    }
+  }
+
+  // Food collection
+  foodPickups = foodPickups.filter(f => {
+    if (f.x < camera.x - 100) return false;
+    const dx = Math.abs((player.x + player.w / 2) - f.x);
+    const dy = Math.abs((player.y - player.h / 2) - f.y);
+    if (dx < 20 && dy < 25) {
+      hunger = Math.min(100, hunger + f.fill);
+      score += 5;
+      spawnDeathParticles(f.x, f.y, COLORS.food);
+      return false;
+    }
+    return true;
+  });
+
   enemies.forEach(e => {
     if (e.type === 'skeleton') {
       const distToPlayer = e.x - player.x;
@@ -464,6 +516,49 @@ function draw() {
   });
   ctx.restore();
 
+  // Draw food pickups
+  ctx.save();
+  ctx.shadowColor = COLORS.food;
+  ctx.shadowBlur = 8;
+  ctx.strokeStyle = COLORS.food;
+  ctx.lineWidth = 2;
+  foodPickups.forEach(f => {
+    const fx = f.x - camera.x;
+    const bobY = f.y + Math.sin(gameTime * 4 + f.x) * 2;
+    ctx.save();
+    ctx.translate(fx, bobY);
+    if (f.type === 'apple') {
+      // Apple — small circle with stem
+      ctx.beginPath();
+      ctx.arc(0, 0, 6, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(0, -6);
+      ctx.lineTo(2, -10);
+      ctx.stroke();
+    } else if (f.type === 'banana') {
+      // Banana — curved line
+      ctx.strokeStyle = '#FFD700';
+      ctx.shadowColor = '#FFD700';
+      ctx.beginPath();
+      ctx.arc(0, 4, 8, -Math.PI * 0.8, -Math.PI * 0.2);
+      ctx.stroke();
+    } else {
+      // Meat — drumstick shape
+      ctx.strokeStyle = '#FF7043';
+      ctx.shadowColor = '#FF7043';
+      ctx.beginPath();
+      ctx.ellipse(-3, 0, 6, 4, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(3, 0);
+      ctx.lineTo(10, 3);
+      ctx.stroke();
+    }
+    ctx.restore();
+  });
+  ctx.restore();
+
   drawProjectiles();
   drawPlayer();
   drawParticles();
@@ -524,6 +619,10 @@ function resetGame() {
   terrainNextX = 0;
   healthPickups = [];
   healthSpawnTimer = 15;
+  hunger = 100;
+  hungerDamageTimer = 0;
+  foodPickups = [];
+  foodSpawnTimer = 8;
   bugSpawnTimer = 2;
   dinoSpawnTimer = 8;
   zombieSpawnTimer = 3;

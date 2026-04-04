@@ -53,6 +53,12 @@ let wardenDetected = false;
 let healthPickups = [];
 let healthSpawnTimer = 0;
 
+// === HUNGER & FOOD ===
+let hunger = 100; // 0-100, starts full
+let hungerDamageTimer = 0; // timer for damage when starving
+let foodPickups = [];
+let foodSpawnTimer = 0;
+
 // === CHEATS ===
 let godMode = false;
 

@@ -24,6 +24,15 @@ function drawHUD() {
   ctx.font = '16px monospace';
   ctx.fillText(`${Math.floor(distance)}m`, canvas.width - 20, 30);
 
+  if (godMode) {
+    ctx.shadowColor = COLORS.melee;
+    ctx.shadowBlur = 12;
+    ctx.fillStyle = COLORS.melee;
+    ctx.font = 'bold 14px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('GOD MODE', canvas.width / 2, 50);
+  }
+
   ctx.textAlign = 'left';
   ctx.restore();
 }

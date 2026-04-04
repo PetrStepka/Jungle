@@ -48,6 +48,9 @@ let noiseLevel = 0;
 let wardenOverlayAlpha = 0;
 let wardenDetected = false;
 
+// === CHEATS ===
+let godMode = false;
+
 // === PROJECTILES ===
 let projectiles = [];
 

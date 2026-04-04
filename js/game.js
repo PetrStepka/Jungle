@@ -83,7 +83,7 @@ function updateWarden(dt) {
       if (wardenTimer <= 0) {
         // Sonic wave — damage player
         screenShake = 0.5;
-        if (player.invincible <= 0) {
+        if (player.invincible <= 0 && !godMode) {
           player.lives -= 2;
           player.invincible = 2.0;
           if (player.lives <= 0) {
@@ -182,15 +182,17 @@ function update(dt) {
   }
 
   if (player.y > canvas.height + 50) {
-    player.lives--;
-    screenShake = 0.3;
-    if (player.lives <= 0) {
-      endGame();
-      return;
+    if (!godMode) {
+      player.lives--;
+      screenShake = 0.3;
+      if (player.lives <= 0) {
+        endGame();
+        return;
+      }
+      player.invincible = 1.5;
     }
     player.y = GROUND_Y - 100;
     player.vy = 0;
-    player.invincible = 1.5;
   }
 
   camera.x = player.x - 250;
@@ -316,7 +318,7 @@ function update(dt) {
   });
 
   enemies.forEach(e => {
-    if (player.invincible > 0 || gameState === 'gameOver') return;
+    if (godMode || player.invincible > 0 || gameState === 'gameOver') return;
     const playerBox = { x: player.x, y: player.y, w: player.w, h: player.h };
     const enemyBox = { x: e.x - e.w / 2, y: e.y, w: e.w, h: e.h };
     if (rectsOverlap(playerBox, enemyBox)) {
@@ -330,7 +332,7 @@ function update(dt) {
   });
 
   // Hostile projectile (arrow) hits player
-  if (player.invincible <= 0 && gameState !== 'gameOver') {
+  if (!godMode && player.invincible <= 0 && gameState !== 'gameOver') {
     projectiles = projectiles.filter(p => {
       if (!p.hostile) return true;
       const px = player.x;

@@ -134,6 +134,7 @@ function drawGameOver() {
 function drawControllerDiagram(ox, oy) {
   ctx.save();
   ctx.translate(ox, oy);
+  ctx.scale(1.25, 1.25); // bigger diagram
   ctx.strokeStyle = '#666';
   ctx.lineWidth = 1.5;
   ctx.shadowColor = '#666';
@@ -235,59 +236,59 @@ function drawControllerDiagram(ox, oy) {
   ctx.fillStyle = COLORS.player;
   ctx.shadowBlur = 4;
   ctx.beginPath();
-  ctx.moveTo(-42, -5); ctx.lineTo(-72, -5);
+  ctx.moveTo(-42, -5); ctx.lineTo(-78, -5);
   ctx.stroke();
   ctx.textAlign = 'right';
-  ctx.fillText('Move', -74, -2);
+  ctx.fillText('Move', -80, -2);
 
   // A label — "Jump"
   ctx.shadowColor = COLORS.player;
   ctx.strokeStyle = COLORS.player + '66';
   ctx.fillStyle = COLORS.player;
   ctx.beginPath();
-  ctx.moveTo(btnCx, btnCy + 21); ctx.lineTo(btnCx, btnCy + 35);
+  ctx.moveTo(btnCx, btnCy + 21); ctx.lineTo(btnCx, btnCy + 38);
   ctx.stroke();
   ctx.textAlign = 'center';
-  ctx.fillText('Jump', btnCx, btnCy + 44);
+  ctx.fillText('Jump', btnCx, btnCy + 47);
 
   // X label — "Melee"
   ctx.shadowColor = COLORS.melee;
   ctx.strokeStyle = COLORS.melee + '66';
   ctx.fillStyle = COLORS.melee;
   ctx.beginPath();
-  ctx.moveTo(btnCx - 21, btnCy); ctx.lineTo(btnCx - 35, btnCy);
+  ctx.moveTo(btnCx - 21, btnCy); ctx.lineTo(btnCx - 42, btnCy - 8);
   ctx.stroke();
   ctx.textAlign = 'right';
-  ctx.fillText('Melee', btnCx - 37, btnCy + 3);
+  ctx.fillText('Melee', btnCx - 44, btnCy - 5);
 
   // B label — "Shoot"
   ctx.shadowColor = COLORS.projectile;
   ctx.strokeStyle = COLORS.projectile + '66';
   ctx.fillStyle = COLORS.projectile;
   ctx.beginPath();
-  ctx.moveTo(btnCx + 21, btnCy); ctx.lineTo(btnCx + 38, btnCy);
+  ctx.moveTo(btnCx + 21, btnCy); ctx.lineTo(btnCx + 45, btnCy);
   ctx.stroke();
   ctx.textAlign = 'left';
-  ctx.fillText('Shoot', btnCx + 40, btnCy + 3);
+  ctx.fillText('Shoot', btnCx + 47, btnCy + 3);
 
   // Y label — "Rocket"
   ctx.shadowColor = COLORS.rocket;
   ctx.strokeStyle = COLORS.rocket + '66';
   ctx.fillStyle = COLORS.rocket;
   ctx.beginPath();
-  ctx.moveTo(btnCx, btnCy - 21); ctx.lineTo(btnCx, btnCy - 33);
+  ctx.moveTo(btnCx, btnCy - 21); ctx.lineTo(btnCx, btnCy - 38);
   ctx.stroke();
   ctx.textAlign = 'center';
-  ctx.fillText('Rocket', btnCx, btnCy - 36);
+  ctx.fillText('Rocket', btnCx, btnCy - 41);
 
   // Start label
   ctx.shadowColor = '#aaa';
   ctx.strokeStyle = '#aaa66';
   ctx.fillStyle = '#aaa';
   ctx.beginPath();
-  ctx.moveTo(10, -26); ctx.lineTo(10, -35);
+  ctx.moveTo(10, -26); ctx.lineTo(10, -38);
   ctx.stroke();
-  ctx.fillText('Start', 10, -38);
+  ctx.fillText('Start', 10, -41);
 
   ctx.restore();
 }
@@ -368,6 +369,7 @@ function drawStartScreen() {
     { text: 'Beetles (red) \u2014 melee them!', color: COLORS.bug },
     { text: 'Zombies (green) \u2014 rage when hit!', color: COLORS.zombie },
     { text: 'Skeletons (white) \u2014 shoot arrows!', color: COLORS.skeleton },
+    { text: 'Birds (purple) \u2014 kill for 10s flight!', color: COLORS.bird },
     { text: 'T-Rex (orange) \u2014 3 HP, shoot them!', color: COLORS.dino },
     { text: 'Warden (cyan) \u2014 stay still!', color: COLORS.warden },
   ];
@@ -375,7 +377,7 @@ function drawStartScreen() {
   enemyInfo.forEach((info, i) => {
     ctx.shadowColor = info.color;
     ctx.fillStyle = info.color;
-    ctx.fillText('\u2666 ' + info.text, cx, 355 + i * 16);
+    ctx.fillText('\u2666 ' + info.text, cx, 360 + i * 15);
   });
 
   // Tips
@@ -383,7 +385,7 @@ function drawStartScreen() {
   ctx.shadowBlur = 4;
   ctx.fillStyle = COLORS.food;
   ctx.font = '11px monospace';
-  ctx.fillText('Collect food to survive hunger \u2022 Pick up hearts for extra lives', cx, 445);
+  ctx.fillText('Collect food to survive hunger \u2022 Hearts = extra lives \u2022 Kill birds = wings!', cx, 460);
 
   // Start prompt
   ctx.shadowColor = COLORS.player;

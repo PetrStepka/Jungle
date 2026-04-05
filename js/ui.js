@@ -141,57 +141,99 @@ function drawStartScreen() {
   ctx.font = '18px monospace';
   ctx.fillText('Survive the neon jungle', canvas.width / 2, 160);
 
-  // Controls header
+  // Controls — two columns: Keyboard (left) and Xbox (right)
+  const cx = canvas.width / 2;
+
   ctx.shadowColor = COLORS.melee;
   ctx.shadowBlur = 8;
   ctx.fillStyle = COLORS.melee;
-  ctx.font = 'bold 22px monospace';
-  ctx.fillText('CONTROLS', canvas.width / 2, 220);
+  ctx.font = 'bold 16px monospace';
 
-  // Control lines
-  ctx.shadowBlur = 6;
-  ctx.font = '16px monospace';
-  const cx = canvas.width / 2;
-  const controls = [
-    { key: '\u2190 \u2192', action: 'Move left / right', color: COLORS.player },
+  // Keyboard column
+  ctx.textAlign = 'center';
+  ctx.fillText('KEYBOARD', cx - 160, 200);
+
+  ctx.font = '13px monospace';
+  ctx.shadowBlur = 5;
+  const kbControls = [
+    { key: '\u2190 \u2192', action: 'Move', color: COLORS.player },
     { key: '\u2191', action: 'Jump', color: COLORS.player },
-    { key: 'Z / Y', action: 'Melee attack (kills bugs)', color: COLORS.melee },
-    { key: 'X', action: 'Shoot (kills dinosaurs)', color: COLORS.projectile },
-    { key: 'C', action: 'Rocket (piercing, 10s cooldown)', color: COLORS.rocket },
+    { key: 'Z / Y', action: 'Melee', color: COLORS.melee },
+    { key: 'X', action: 'Shoot', color: COLORS.projectile },
+    { key: 'C', action: 'Rocket', color: COLORS.rocket },
   ];
 
-  controls.forEach((c, i) => {
-    const y = 250 + i * 30;
+  kbControls.forEach((c, i) => {
+    const y = 222 + i * 22;
     ctx.shadowColor = c.color;
     ctx.fillStyle = c.color;
     ctx.textAlign = 'right';
-    ctx.fillText(c.key, cx - 20, y);
+    ctx.fillText(c.key, cx - 190, y);
     ctx.textAlign = 'left';
-    ctx.fillStyle = '#aaa';
-    ctx.shadowColor = '#aaa';
-    ctx.shadowBlur = 2;
-    ctx.fillText(c.action, cx + 20, y);
-    ctx.shadowBlur = 6;
+    ctx.fillStyle = '#888';
+    ctx.shadowColor = '#888';
+    ctx.shadowBlur = 1;
+    ctx.fillText(c.action, cx - 180, y);
+    ctx.shadowBlur = 5;
+  });
+
+  // Xbox column
+  ctx.shadowColor = COLORS.melee;
+  ctx.shadowBlur = 8;
+  ctx.fillStyle = COLORS.melee;
+  ctx.font = 'bold 16px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('XBOX CONTROLLER', cx + 160, 200);
+
+  ctx.font = '13px monospace';
+  ctx.shadowBlur = 5;
+  const gpControls = [
+    { key: 'Stick / D-Pad', action: 'Move', color: COLORS.player },
+    { key: 'A / D-Up', action: 'Jump', color: COLORS.player },
+    { key: 'X', action: 'Melee', color: COLORS.melee },
+    { key: 'B', action: 'Shoot', color: COLORS.projectile },
+    { key: 'Y', action: 'Rocket', color: COLORS.rocket },
+  ];
+
+  gpControls.forEach((c, i) => {
+    const y = 222 + i * 22;
+    ctx.shadowColor = c.color;
+    ctx.fillStyle = c.color;
+    ctx.textAlign = 'right';
+    ctx.fillText(c.key, cx + 130, y);
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#888';
+    ctx.shadowColor = '#888';
+    ctx.shadowBlur = 1;
+    ctx.fillText(c.action, cx + 140, y);
+    ctx.shadowBlur = 5;
   });
 
   // Enemies info
   ctx.textAlign = 'center';
-  ctx.font = '13px monospace';
-  ctx.shadowBlur = 6;
+  ctx.font = '12px monospace';
+  ctx.shadowBlur = 5;
 
   const enemyInfo = [
-    { text: 'Beetles (red) \u2014 fast, 1 HP, melee them!', color: COLORS.bug },
-    { text: 'Zombies (green) \u2014 slow but rage when hit!', color: COLORS.zombie },
-    { text: 'Skeletons (white) \u2014 shoot arrows, keep distance!', color: COLORS.skeleton },
-    { text: 'T-Rex (orange) \u2014 tough, 3 HP, shoot them!', color: COLORS.dino },
-    { text: 'Warden (cyan) \u2014 stay still or face the sonic blast!', color: COLORS.warden },
+    { text: 'Beetles (red) \u2014 melee them!', color: COLORS.bug },
+    { text: 'Zombies (green) \u2014 rage when hit!', color: COLORS.zombie },
+    { text: 'Skeletons (white) \u2014 shoot arrows!', color: COLORS.skeleton },
+    { text: 'T-Rex (orange) \u2014 3 HP, shoot them!', color: COLORS.dino },
+    { text: 'Warden (cyan) \u2014 stay still!', color: COLORS.warden },
   ];
 
   enemyInfo.forEach((info, i) => {
     ctx.shadowColor = info.color;
     ctx.fillStyle = info.color;
-    ctx.fillText('\u2666 ' + info.text, cx, 415 + i * 18);
+    ctx.fillText('\u2666 ' + info.text, cx, 355 + i * 16);
   });
+
+  // Tips
+  ctx.shadowColor = COLORS.food;
+  ctx.shadowBlur = 4;
+  ctx.fillStyle = COLORS.food;
+  ctx.font = '11px monospace';
+  ctx.fillText('Collect food to survive hunger \u2022 Pick up hearts for extra lives', cx, 445);
 
   // Start prompt
   ctx.shadowColor = COLORS.player;
@@ -199,7 +241,14 @@ function drawStartScreen() {
   ctx.fillStyle = COLORS.player;
   ctx.font = 'bold 20px monospace';
   const blink = Math.floor(Date.now() / 500) % 2 === 0;
-  if (blink) ctx.fillText('Press ENTER to start', cx, 500);
+  if (blink) ctx.fillText('Press ENTER or START to play', cx, 478);
+
+  // Author credit
+  ctx.shadowBlur = 3;
+  ctx.fillStyle = '#555';
+  ctx.shadowColor = '#555';
+  ctx.font = '10px monospace';
+  ctx.fillText('by Petr \u0160t\u011bpka Junior (6 let) \u2022 vibe coded with Claude Code & Whisper Flow', cx, 528);
 
   ctx.textAlign = 'left';
   ctx.restore();

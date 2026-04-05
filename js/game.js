@@ -271,21 +271,20 @@ function update(dt) {
 
   projectiles = projectiles.filter(p => {
     if (p.hostile) return true; // hostile arrows don't hit enemies
-    let hitSomething = false;
     for (const e of enemies) {
+      if (p.rocket && e.type === 'bug') continue; // rocket ignores beetles
       const ex = e.x - e.w / 2;
       if (p.x > ex && p.x < ex + e.w && p.y > e.y - e.h && p.y < e.y) {
-        const dmg = p.rocket ? 999 : 2;
-        e.hp -= dmg;
+        if (p.rocket) {
+          e.hp -= 999;
+          spawnDeathParticles(e.x, e.y - e.h / 2, COLORS.rocket);
+          continue; // rocket pierces through, never consumed
+        }
+        e.hp -= 2;
         if (e.type === 'zombie' && e.hp > 0 && !e.rage) {
           e.rage = true;
           e.speed = 220;
           e.points = 25;
-        }
-        if (p.rocket) {
-          hitSomething = true;
-          spawnDeathParticles(e.x, e.y - e.h / 2, COLORS.rocket);
-          continue; // rocket pierces through
         }
         return false;
       }
@@ -294,7 +293,7 @@ function update(dt) {
   });
 
   // Player projectile vs hostile arrow collision (both destroyed)
-  const playerShots = projectiles.filter(p => !p.hostile);
+  const playerShots = projectiles.filter(p => !p.hostile && !p.rocket);
   const arrows = projectiles.filter(p => p.hostile);
   const destroyedPlayerShots = new Set();
   const destroyedArrows = new Set();

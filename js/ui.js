@@ -120,6 +120,168 @@ function drawGameOver() {
   ctx.restore();
 }
 
+// === DRAW XBOX CONTROLLER DIAGRAM ===
+function drawControllerDiagram(ox, oy) {
+  ctx.save();
+  ctx.translate(ox, oy);
+  ctx.strokeStyle = '#666';
+  ctx.lineWidth = 1.5;
+  ctx.shadowColor = '#666';
+  ctx.shadowBlur = 4;
+
+  // Controller body — rounded shape
+  ctx.beginPath();
+  ctx.moveTo(-55, -15);
+  ctx.quadraticCurveTo(-60, -25, -50, -30);
+  ctx.lineTo(50, -30);
+  ctx.quadraticCurveTo(60, -25, 55, -15);
+  ctx.quadraticCurveTo(65, 5, 50, 20);
+  ctx.quadraticCurveTo(35, 35, 20, 30);
+  ctx.lineTo(-20, 30);
+  ctx.quadraticCurveTo(-35, 35, -50, 20);
+  ctx.quadraticCurveTo(-65, 5, -55, -15);
+  ctx.stroke();
+
+  // Left stick (circle)
+  ctx.shadowColor = COLORS.player;
+  ctx.strokeStyle = COLORS.player;
+  ctx.shadowBlur = 6;
+  ctx.beginPath();
+  ctx.arc(-30, -5, 10, 0, Math.PI * 2);
+  ctx.stroke();
+  // Small cross inside stick
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(-30, -9); ctx.lineTo(-30, -1);
+  ctx.moveTo(-34, -5); ctx.lineTo(-26, -5);
+  ctx.stroke();
+  ctx.lineWidth = 1.5;
+
+  // D-pad (below-left of stick)
+  ctx.beginPath();
+  ctx.moveTo(-30, 12); ctx.lineTo(-30, 22);
+  ctx.moveTo(-35, 17); ctx.lineTo(-25, 17);
+  ctx.stroke();
+
+  // Face buttons — A, B, X, Y (right side)
+  const btnR = 6;
+  const btnCx = 30;
+  const btnCy = -5;
+
+  // Y (top) — rocket
+  ctx.shadowColor = COLORS.rocket;
+  ctx.strokeStyle = COLORS.rocket;
+  ctx.shadowBlur = 6;
+  ctx.beginPath();
+  ctx.arc(btnCx, btnCy - 14, btnR, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.font = 'bold 9px monospace';
+  ctx.fillStyle = COLORS.rocket;
+  ctx.textAlign = 'center';
+  ctx.fillText('Y', btnCx, btnCy - 11);
+
+  // A (bottom) — jump
+  ctx.shadowColor = COLORS.player;
+  ctx.strokeStyle = COLORS.player;
+  ctx.beginPath();
+  ctx.arc(btnCx, btnCy + 14, btnR, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.fillStyle = COLORS.player;
+  ctx.fillText('A', btnCx, btnCy + 17);
+
+  // X (left) — melee
+  ctx.shadowColor = COLORS.melee;
+  ctx.strokeStyle = COLORS.melee;
+  ctx.beginPath();
+  ctx.arc(btnCx - 14, btnCy, btnR, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.fillStyle = COLORS.melee;
+  ctx.fillText('X', btnCx - 14, btnCy + 3);
+
+  // B (right) — shoot
+  ctx.shadowColor = COLORS.projectile;
+  ctx.strokeStyle = COLORS.projectile;
+  ctx.beginPath();
+  ctx.arc(btnCx + 14, btnCy, btnR, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.fillStyle = COLORS.projectile;
+  ctx.fillText('B', btnCx + 14, btnCy + 3);
+
+  // Start button (small, center-right)
+  ctx.shadowColor = '#aaa';
+  ctx.strokeStyle = '#aaa';
+  ctx.shadowBlur = 3;
+  ctx.beginPath();
+  ctx.arc(10, -22, 3, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Labels with lines
+  ctx.font = '10px monospace';
+  ctx.lineWidth = 1;
+
+  // Left stick label — "Move"
+  ctx.shadowColor = COLORS.player;
+  ctx.strokeStyle = COLORS.player + '66';
+  ctx.fillStyle = COLORS.player;
+  ctx.shadowBlur = 4;
+  ctx.beginPath();
+  ctx.moveTo(-42, -5); ctx.lineTo(-72, -5);
+  ctx.stroke();
+  ctx.textAlign = 'right';
+  ctx.fillText('Move', -74, -2);
+
+  // A label — "Jump"
+  ctx.shadowColor = COLORS.player;
+  ctx.strokeStyle = COLORS.player + '66';
+  ctx.fillStyle = COLORS.player;
+  ctx.beginPath();
+  ctx.moveTo(btnCx, btnCy + 21); ctx.lineTo(btnCx, btnCy + 35);
+  ctx.stroke();
+  ctx.textAlign = 'center';
+  ctx.fillText('Jump', btnCx, btnCy + 44);
+
+  // X label — "Melee"
+  ctx.shadowColor = COLORS.melee;
+  ctx.strokeStyle = COLORS.melee + '66';
+  ctx.fillStyle = COLORS.melee;
+  ctx.beginPath();
+  ctx.moveTo(btnCx - 21, btnCy); ctx.lineTo(btnCx - 35, btnCy);
+  ctx.stroke();
+  ctx.textAlign = 'right';
+  ctx.fillText('Melee', btnCx - 37, btnCy + 3);
+
+  // B label — "Shoot"
+  ctx.shadowColor = COLORS.projectile;
+  ctx.strokeStyle = COLORS.projectile + '66';
+  ctx.fillStyle = COLORS.projectile;
+  ctx.beginPath();
+  ctx.moveTo(btnCx + 21, btnCy); ctx.lineTo(btnCx + 38, btnCy);
+  ctx.stroke();
+  ctx.textAlign = 'left';
+  ctx.fillText('Shoot', btnCx + 40, btnCy + 3);
+
+  // Y label — "Rocket"
+  ctx.shadowColor = COLORS.rocket;
+  ctx.strokeStyle = COLORS.rocket + '66';
+  ctx.fillStyle = COLORS.rocket;
+  ctx.beginPath();
+  ctx.moveTo(btnCx, btnCy - 21); ctx.lineTo(btnCx, btnCy - 33);
+  ctx.stroke();
+  ctx.textAlign = 'center';
+  ctx.fillText('Rocket', btnCx, btnCy - 36);
+
+  // Start label
+  ctx.shadowColor = '#aaa';
+  ctx.strokeStyle = '#aaa66';
+  ctx.fillStyle = '#aaa';
+  ctx.beginPath();
+  ctx.moveTo(10, -26); ctx.lineTo(10, -35);
+  ctx.stroke();
+  ctx.fillText('Start', 10, -38);
+
+  ctx.restore();
+}
+
 // === DRAW START SCREEN ===
 function drawStartScreen() {
   ctx.save();
@@ -177,7 +339,7 @@ function drawStartScreen() {
     ctx.shadowBlur = 5;
   });
 
-  // Xbox column
+  // Xbox controller diagram
   ctx.shadowColor = COLORS.melee;
   ctx.shadowBlur = 8;
   ctx.fillStyle = COLORS.melee;
@@ -185,29 +347,7 @@ function drawStartScreen() {
   ctx.textAlign = 'center';
   ctx.fillText('XBOX CONTROLLER', cx + 160, 200);
 
-  ctx.font = '13px monospace';
-  ctx.shadowBlur = 5;
-  const gpControls = [
-    { key: 'Stick / D-Pad', action: 'Move', color: COLORS.player },
-    { key: 'A / D-Up', action: 'Jump', color: COLORS.player },
-    { key: 'X', action: 'Melee', color: COLORS.melee },
-    { key: 'B', action: 'Shoot', color: COLORS.projectile },
-    { key: 'Y', action: 'Rocket', color: COLORS.rocket },
-  ];
-
-  gpControls.forEach((c, i) => {
-    const y = 222 + i * 22;
-    ctx.shadowColor = c.color;
-    ctx.fillStyle = c.color;
-    ctx.textAlign = 'right';
-    ctx.fillText(c.key, cx + 130, y);
-    ctx.textAlign = 'left';
-    ctx.fillStyle = '#888';
-    ctx.shadowColor = '#888';
-    ctx.shadowBlur = 1;
-    ctx.fillText(c.action, cx + 140, y);
-    ctx.shadowBlur = 5;
-  });
+  drawControllerDiagram(cx + 160, 280);
 
   // Enemies info
   ctx.textAlign = 'center';
@@ -248,7 +388,7 @@ function drawStartScreen() {
   ctx.fillStyle = '#555';
   ctx.shadowColor = '#555';
   ctx.font = '10px monospace';
-  ctx.fillText('by Petr \u0160t\u011bpka Junior (6 let) \u2022 vibe coded with Claude Code & Whisper Flow', cx, 528);
+  ctx.fillText('by Petr \u0160t\u011bpka Jr. (age 6) \u2022 vibe coded with Claude Code & Whisper Flow', cx, 528);
 
   ctx.textAlign = 'left';
   ctx.restore();

@@ -270,8 +270,9 @@ function update(dt) {
   });
 
   projectiles = projectiles.filter(p => {
-    if (p.hostile) return true; // hostile arrows don't hit enemies
     for (const e of enemies) {
+      // Hostile arrows don't hit skeletons (friendly fire exempt)
+      if (p.hostile && e.type === 'skeleton') continue;
       if (p.rocket && e.type === 'bug') continue; // rocket ignores beetles
       const ex = e.x - e.w / 2;
       if (p.x > ex && p.x < ex + e.w && p.y > e.y - e.h && p.y < e.y) {
@@ -280,13 +281,14 @@ function update(dt) {
           spawnDeathParticles(e.x, e.y - e.h / 2, COLORS.rocket);
           continue; // rocket pierces through, never consumed
         }
-        e.hp -= 2;
+        const dmg = p.hostile ? 1 : 2;
+        e.hp -= dmg;
         if (e.type === 'zombie' && e.hp > 0 && !e.rage) {
           e.rage = true;
           e.speed = 220;
           e.points = 25;
         }
-        return false;
+        return false; // arrow or player shot consumed on hit
       }
     }
     return true;

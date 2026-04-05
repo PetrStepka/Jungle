@@ -71,6 +71,16 @@ function drawHUD() {
     ctx.fillText(`\u25C6 ROCKET ${Math.ceil(player.rocketCooldown)}s`, 20, 55);
   }
 
+  // Wings timer
+  if (player.flyTimer > 0) {
+    ctx.textAlign = 'left';
+    ctx.shadowColor = COLORS.wings;
+    ctx.shadowBlur = 10;
+    ctx.fillStyle = COLORS.wings;
+    ctx.font = 'bold 14px monospace';
+    ctx.fillText(`\u2727 WINGS ${Math.ceil(player.flyTimer)}s`, 20, 75);
+  }
+
   if (godMode) {
     ctx.shadowColor = COLORS.melee;
     ctx.shadowBlur = 12;

@@ -27,6 +27,7 @@ const player = {
   meleeTimer: 0,
   shootCooldown: 0,
   rocketCooldown: 0,
+  flyTimer: 0, // seconds of flight remaining
 };
 
 // === TERRAIN ===
@@ -39,6 +40,7 @@ let bugSpawnTimer = 0;
 let dinoSpawnTimer = 0;
 let zombieSpawnTimer = 0;
 let skeletonSpawnTimer = 0;
+let birdSpawnTimer = 0;
 
 // === WARDEN STATE ===
 let nextWardenDistance = 2000;

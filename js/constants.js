@@ -21,4 +21,6 @@ const COLORS = {
   health: '#FF69B4',
   food: '#FFA726',
   hungerBar: '#FF9800',
+  bird: '#E040FB',
+  wings: '#CE93D8',
 };

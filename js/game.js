@@ -161,7 +161,13 @@ function update(dt) {
   player.vx = 0;
   if (keys['ArrowLeft']) { player.vx = -PLAYER_SPEED; player.facing = -1; }
   if (keys['ArrowRight']) { player.vx = PLAYER_SPEED; player.facing = 1; }
-  if (keys['ArrowUp'] && player.onGround) { player.vy = JUMP_FORCE; player.onGround = false; }
+  if (player.flyTimer > 0) {
+    // Flying mode — ArrowUp gives lift, not just jump
+    if (keys['ArrowUp']) { player.vy = -300; }
+    player.flyTimer -= dt;
+  } else {
+    if (keys['ArrowUp'] && player.onGround) { player.vy = JUMP_FORCE; player.onGround = false; }
+  }
 
   player.vy += GRAVITY * dt;
   player.x += player.vx * dt;
@@ -392,6 +398,11 @@ function update(dt) {
   });
 
   enemies.forEach(e => {
+    if (e.type === 'bird') {
+      e.x -= e.speed * dt;
+      e.y = e.baseY + Math.sin(gameTime * 2 + e.waveSeed) * 25;
+      return;
+    }
     if (e.type === 'skeleton') {
       const distToPlayer = e.x - player.x;
       if (distToPlayer < 250 && distToPlayer > 0) {
@@ -456,6 +467,9 @@ function update(dt) {
   enemies = enemies.filter(e => {
     if (e.hp <= 0) {
       score += e.points;
+      if (e.type === 'bird') {
+        player.flyTimer = 10; // 10 seconds of flight!
+      }
       spawnDeathParticles(e.x, e.y - e.h / 2, COLORS[e.type] || COLORS.dino);
       return false;
     }
@@ -500,6 +514,7 @@ function draw() {
     if (e.type === 'bug') drawBeetle(e);
     else if (e.type === 'zombie') drawZombie(e);
     else if (e.type === 'skeleton') drawSkeleton(e);
+    else if (e.type === 'bird') drawBird(e);
     else drawTRex(e);
   });
 
@@ -610,6 +625,7 @@ function resetGame() {
   player.meleeTimer = 0;
   player.shootCooldown = 0;
   player.rocketCooldown = 0;
+  player.flyTimer = 0;
   player.facing = 1;
   camera.x = 0;
   enemies = [];
@@ -619,6 +635,7 @@ function resetGame() {
   terrainNextX = 0;
   healthPickups = [];
   healthSpawnTimer = 15;
+  birdSpawnTimer = 8;
   hunger = 100;
   hungerDamageTimer = 0;
   foodPickups = [];

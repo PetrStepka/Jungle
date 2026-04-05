@@ -294,6 +294,70 @@ function drawWarden(entity) {
   ctx.restore();
 }
 
+// === DRAW BIRD ===
+function drawBird(enemy) {
+  const sx = enemy.x - camera.x;
+  const sy = enemy.y;
+  const f = enemy.facing || -1;
+  const wingFlap = Math.sin(gameTime * 10) * 0.4;
+
+  ctx.save();
+  ctx.shadowColor = COLORS.bird;
+  ctx.shadowBlur = 10;
+  ctx.strokeStyle = COLORS.bird;
+  ctx.lineWidth = 2;
+  ctx.translate(sx, sy);
+  ctx.scale(f * -1, 1);
+
+  // Body
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 12, 6, 0, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Head
+  ctx.beginPath();
+  ctx.arc(14, -3, 5, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Beak
+  ctx.beginPath();
+  ctx.moveTo(19, -3);
+  ctx.lineTo(25, -2);
+  ctx.lineTo(19, -1);
+  ctx.stroke();
+
+  // Eye
+  ctx.beginPath();
+  ctx.arc(16, -4, 1.5, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Wings (flapping)
+  ctx.lineWidth = 2.5;
+  // Upper wing
+  ctx.beginPath();
+  ctx.moveTo(-2, -5);
+  ctx.quadraticCurveTo(-5, -18 - wingFlap * 15, -15, -14 - wingFlap * 20);
+  ctx.stroke();
+  // Lower wing edge
+  ctx.beginPath();
+  ctx.moveTo(-15, -14 - wingFlap * 20);
+  ctx.quadraticCurveTo(-8, -10 - wingFlap * 8, 2, -5);
+  ctx.stroke();
+
+  // Tail feathers
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(-12, 0);
+  ctx.lineTo(-20, -4);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(-12, 1);
+  ctx.lineTo(-21, 2);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
 // === DRAW T-REX ===
 function drawTRex(enemy) {
   const sx = enemy.x - camera.x;
@@ -459,6 +523,32 @@ function spawnEnemies(dt) {
         facing: -1,
         points: 30,
         shootTimer: 1.5,
+      });
+    }
+  }
+
+  // Bird spawn (from 300m)
+  if (distance >= 300) {
+    let birdInterval;
+    if (distance < 1000) birdInterval = 8.0;
+    else if (distance < 2000) birdInterval = 5.0;
+    else birdInterval = 3.5;
+
+    birdSpawnTimer -= dt;
+    if (birdSpawnTimer <= 0) {
+      birdSpawnTimer = birdInterval + Math.random() * birdInterval * 0.4;
+      const flyHeight = GROUND_Y - 80 - Math.random() * 120; // flies high
+      enemies.push({
+        type: 'bird',
+        x: camera.x + canvas.width + 60,
+        y: flyHeight,
+        w: 24, h: 12,
+        hp: 1,
+        speed: 120 + Math.random() * 60,
+        facing: -1,
+        points: 20,
+        baseY: flyHeight,
+        waveSeed: Math.random() * Math.PI * 2,
       });
     }
   }

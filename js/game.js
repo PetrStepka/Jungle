@@ -652,6 +652,7 @@ function gameLoop(timestamp) {
   if (lastTime === null) { lastTime = timestamp; }
   const dt = Math.min((timestamp - lastTime) / 1000, 0.05);
   lastTime = timestamp;
+  pollGamepad();
   update(dt);
   draw();
   requestAnimationFrame(gameLoop);
